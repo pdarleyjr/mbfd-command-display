@@ -28,11 +28,18 @@ export function LiveCameraNetwork({
       icon={<Camera size={15} />}
       className={className}
       bodyClassName="min-h-0"
-      right={<span className="text-[11px] uppercase tracking-wider text-faint">{list.length} feeds</span>}
+      right={
+        <span className="cg-live">
+          <span className="cg-live__dot" />
+          {list.length} live
+        </span>
+      }
     >
-      <div className={clsx('cg-scroll-y grid h-full min-h-0 content-start gap-2 auto-rows-[minmax(104px,1fr)]', columnsClassName)}>
+      {/* Fixed 2×2 (or single column on the narrowest screens): tiles fill their cell and
+          can never overflow — there are exactly as many cells as tiles. */}
+      <div className={clsx('grid h-full min-h-0 gap-2', columnsClassName ?? 'grid-cols-2 grid-rows-2')}>
         {list.map((cam) => (
-          <CameraTile key={cam.id} camera={cam} allowRefresh={allowRefresh} className="!aspect-auto min-h-0" />
+          <CameraTile key={cam.id} camera={cam} allowRefresh={allowRefresh} className="!aspect-auto h-full min-h-0" />
         ))}
       </div>
     </GlassPanel>

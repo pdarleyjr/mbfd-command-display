@@ -95,16 +95,17 @@ html[data-regime='portrait'] {
  * COMMAND OVERVIEW
  * ════════════════════════════════════════════════════════════════════════ */
 
-/* ── FLOW (default): three definite bands, scrolls when the screen is short ── */
+/* ── FLOW (default): map row is the anchor; rows 2/3 size to CONTENT (no vh crush) and
+ *    the body scrolls when the screen is short. This is the desktop-primary path. ── */
 .cg-overview {
   display: grid;
   gap: var(--gap);
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
-    'map map map map map map map grid grid grid grid grid'
-    'runs runs runs ai ai ai ai ai cams cams cams cams'
-    'issues issues issues issues issues issues issues req req req req req';
-  grid-template-rows: minmax(300px, 46vh) minmax(232px, 32vh) minmax(184px, 24vh);
+    'map  map  map  map  map  map  map  runs runs runs runs runs'
+    'grid grid grid grid grid ai   ai   ai   ai   cams cams cams'
+    'issues issues issues issues issues issues req req req cams cams cams';
+  grid-template-rows: minmax(360px, 48vh) minmax(300px, auto) minmax(240px, auto);
   height: 100%;
   min-height: 0;
   overflow-y: auto;
@@ -149,18 +150,21 @@ html[data-display='1'] .cg-overview {
   .cg-area-map { height: clamp(300px, 48vh, 520px); }
 }
 
-/* ── Portrait monitors: two columns, scrolls ── */
-html[data-regime='portrait'] .cg-overview {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: none;
-  grid-template-areas:
-    'map map'
-    'grid grid'
-    'runs ai'
-    'cams cams'
-    'issues req';
-  grid-auto-rows: clamp(280px, 30vh, 520px);
-  overflow-y: auto;
+/* ── Portrait monitors / tablets (wide enough for 2 columns): two columns, scrolls.
+ *    Narrow portrait phones fall through to the single-column stack above. ── */
+@media (min-width: 700px) {
+  html[data-regime='portrait'] .cg-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-template-areas:
+      'map map'
+      'grid grid'
+      'runs ai'
+      'cams cams'
+      'issues req';
+    grid-auto-rows: clamp(280px, 30vh, 520px);
+    overflow-y: auto;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -176,7 +180,7 @@ html[data-regime='portrait'] .cg-overview {
     'hero hero hero hero hero hero hero hero cams cams cams cams'
     'appr appr appr appr ppl ppl ppl ppl cams cams cams cams'
     'runs runs runs runs subs subs subs subs ai ai ai ai';
-  grid-template-rows: minmax(220px, 30vh) minmax(240px, 32vh) minmax(220px, 28vh);
+  grid-template-rows: minmax(240px, auto) minmax(280px, auto) minmax(260px, auto);
   height: 100%;
   min-height: 0;
   overflow-y: auto;
@@ -217,17 +221,19 @@ html[data-display='1'] .cg-station {
   .cg-sarea-hero { height: clamp(220px, 32vh, 360px); }
 }
 
-html[data-regime='portrait'] .cg-station {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: none;
-  grid-template-areas:
-    'hero hero'
-    'appr ppl'
-    'subs runs'
-    'cams cams'
-    'ai ai';
-  grid-auto-rows: clamp(260px, 28vh, 480px);
-  overflow-y: auto;
+@media (min-width: 700px) {
+  html[data-regime='portrait'] .cg-station {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-template-areas:
+      'hero hero'
+      'appr ppl'
+      'subs runs'
+      'cams cams'
+      'ai ai';
+    grid-auto-rows: clamp(260px, 28vh, 480px);
+    overflow-y: auto;
+  }
 }
 
 /* ── Scrollbars — slim, on-brand. ── */

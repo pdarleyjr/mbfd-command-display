@@ -29,7 +29,8 @@ export const useUiStore = create<UiState>()(
       displayMode: false,
       motionPref: 'auto',
       qualityPref: 'auto',
-      ambientBackdrop: true,
+      // Flat "Watch Desk" aesthetic — no decorative WebGL backdrop behind content.
+      ambientBackdrop: false,
       setDisplayMode: (v) => set({ displayMode: v }),
       toggleDisplayMode: () => set((s) => ({ displayMode: !s.displayMode })),
       setMotionPref: (v) => set({ motionPref: v }),

@@ -1,89 +1,96 @@
 /*
- * MBFD Command Glass — design tokens.
- * Single source of truth for color, depth, type, and motion. Tailwind mirrors the
- * color literals (tailwind.config.js); everything else is consumed via var(--token).
+ * MBFD Command Display — "Watch Desk" design tokens.
+ * A flat, instrument-grade situational-awareness console: calm graphite field,
+ * MBFD navy as the single interactive accent, ember reserved for LIVE / critical action.
+ * Depth ENCODES meaning (flat = reference, tinted = attention, raised = live) — it is not
+ * sprinkled decoratively. Tailwind mirrors the literals (tailwind.config.js); everything
+ * else is consumed via var(--token).
  */
 
 :root {
-  /* ── Foundation: deep navy / graphite / black-blue ── */
-  --c-abyss: #070c16;
-  --c-bg: #0b1220;
-  --c-bg-2: #0f1a2e;
-  --c-bg-3: #13243e;
-  --c-surface: #16202f;
-  --c-surface-2: #1b2839;
-  --c-surface-3: #243349;
-  --c-hairline: rgba(146, 164, 190, 0.16);
-  --c-hairline-strong: rgba(146, 164, 190, 0.28);
+  /* ── Canvas / surfaces — flat graphite, minimal gradient ── */
+  --c-abyss: #090d14;
+  --c-bg: #0e1219;
+  --c-bg-2: #121826;
+  --c-bg-3: #16203a;
+  --c-surface: #171d28;     /* flat reference panel */
+  --c-surface-2: #1c2330;   /* nested rows / chips */
+  --c-surface-3: #1f2735;   /* raised / live panel */
+  --c-hairline: rgba(150, 165, 190, 0.16);
+  --c-hairline-strong: rgba(150, 165, 190, 0.30);
 
   /* ── Text ── */
-  --c-ink: #e6edf7;
-  --c-mute: #93a4be;
-  --c-faint: #5c6e89;
+  --c-ink: #e9edf4;
+  --c-mute: #a4afc1;
+  --c-faint: #74809a;
 
-  /* ── Status (always paired with icon + label, never color-alone) ── */
-  --c-ready: #21d07a;
-  --c-attention: #ffc53d;
-  --c-critical: #ff5c6c;
-  --c-info: #4da3ff;
+  /* ── Status (icon + label always paired; calmer than neon) ── */
+  --c-ready: #34c98a;
+  --c-attention: #e8b13a;
+  --c-critical: #e2503f;
+  --c-info: #4f8bd6;
   --c-unknown: #6b7c98;
 
-  /* ── Accents ── */
-  --c-ember: #ff6a3d; /* restrained fire/critical/live accent */
-  --c-cyan: #37e6e0; /* interactive drill-down stroke */
-  --c-cyan-dim: #1e8f8b;
-  --c-marine: #2fb6c9; /* Station 6 marine layer */
+  /* ── Brand ── */
+  --c-interactive: #4f8bd6; /* navy-blue — drill-down / focus / links (REPLACES cyan) */
+  --c-ember: #ef6a32;       /* LIVE indicator + critical-action emphasis ONLY */
+  --c-marine: #2fb6c9;      /* Station 6 marine */
+  /* Back-compat aliases (anything still referencing cyan resolves to navy, never neon). */
+  --c-cyan: var(--c-interactive);
+  --c-cyan-dim: #2a4e86;
 
-  /* Status tints (for soft fills behind text — kept low so text stays legible) */
-  --t-ready: rgba(33, 208, 122, 0.14);
-  --t-attention: rgba(255, 197, 61, 0.15);
-  --t-critical: rgba(255, 92, 108, 0.16);
-  --t-info: rgba(77, 163, 255, 0.14);
-  --t-cyan: rgba(55, 230, 224, 0.12);
+  /* Status tints (soft fills behind text — kept low so text stays legible) */
+  --t-ready: rgba(52, 201, 138, 0.13);
+  --t-attention: rgba(232, 177, 58, 0.14);
+  --t-critical: rgba(226, 80, 63, 0.14);
+  --t-info: rgba(79, 139, 214, 0.14);
+  --t-cyan: rgba(79, 139, 214, 0.14);
 
-  /* ── Glass ── */
-  --glass-fill: linear-gradient(
-    160deg,
-    rgba(36, 51, 73, 0.55) 0%,
-    rgba(15, 26, 46, 0.62) 60%,
-    rgba(11, 18, 32, 0.7) 100%
-  );
-  --glass-fill-solid: #131e30; /* fallback when backdrop-filter unsupported */
-  --glass-stroke: rgba(146, 164, 190, 0.2);
-  --glass-stroke-active: rgba(55, 230, 224, 0.45);
-  --glass-blur: 18px;
-  --glass-radius: 16px;
-  --glass-radius-lg: 22px;
+  /* ── Surfaces (legacy "glass" names kept; now flat, no blur) ── */
+  --glass-fill: var(--c-surface);
+  --glass-fill-solid: var(--c-surface);
+  --glass-stroke: var(--c-hairline);
+  --glass-stroke-active: var(--c-interactive);
+  --glass-blur: 0px;
+  --glass-radius: 14px;
+  --glass-radius-lg: 16px;
 
-  /* ── Depth ── */
-  --shadow-glass: 0 10px 40px -12px rgba(0, 0, 0, 0.65),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --shadow-lg: 0 24px 70px -18px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  --glow-cyan: 0 0 0 1px rgba(55, 230, 224, 0.18), 0 0 24px -6px rgba(55, 230, 224, 0.35);
-  --glow-ember: 0 0 24px -6px rgba(255, 106, 61, 0.5);
+  /* ── Depth — used only on raised/live panels ── */
+  --shadow-glass: 0 1px 0 0 rgba(255, 255, 255, 0.03);
+  --shadow-lg: 0 14px 36px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  --shadow-live: 0 10px 28px -18px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --glow-cyan: none;
+  --glow-ember: 0 0 0 1px rgba(239, 106, 50, 0.25);
 
-  /* ── Type scale (distance-readable; scales with display class via --type-scale) ── */
+  /* ── Type ── */
+  --font-display: 'Saira', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+
+  /* Fluid ramp (desktop reads this directly; --type-scale only modulates the wall). */
   --type-scale: 1;
-  --fs-label: calc(0.72rem * var(--type-scale));
-  --fs-body: calc(0.9rem * var(--type-scale));
-  --fs-body-lg: calc(1.05rem * var(--type-scale));
-  --fs-title: calc(1.35rem * var(--type-scale));
-  --fs-metric-sm: calc(1.6rem * var(--type-scale));
-  --fs-metric: calc(2.4rem * var(--type-scale));
-  --fs-metric-lg: calc(3.6rem * var(--type-scale));
+  --fs-label: calc(clamp(0.66rem, 0.6rem + 0.18vw, 0.78rem) * var(--type-scale));
+  --fs-body: calc(clamp(0.88rem, 0.84rem + 0.22vw, 1.0rem) * var(--type-scale));
+  --fs-body-lg: calc(clamp(1.0rem, 0.94rem + 0.3vw, 1.18rem) * var(--type-scale));
+  --fs-title: calc(clamp(1.04rem, 0.95rem + 0.45vw, 1.4rem) * var(--type-scale));
+  --fs-h: var(--fs-title);
+  --fs-metric-sm: calc(clamp(1.35rem, 1.1rem + 0.9vw, 2.0rem) * var(--type-scale));
+  --fs-metric: calc(clamp(1.7rem, 1.3rem + 1.4vw, 2.7rem) * var(--type-scale));
+  --fs-stat: var(--fs-metric);
+  --fs-metric-lg: calc(clamp(2.4rem, 1.6rem + 3vw, 4.2rem) * var(--type-scale));
+  --fs-hero: var(--fs-metric-lg);
 
-  /* ── Spacing rhythm ── */
-  --gap-xs: 6px;
-  --gap-sm: 10px;
-  --gap: 16px;
-  --gap-lg: 24px;
-  --gap-xl: 36px;
-  --pad-card: 20px;
+  /* ── Spacing rhythm (4px base) ── */
+  --gap-xs: 4px;
+  --gap-sm: 8px;
+  --gap: 14px;
+  --gap-lg: 22px;
+  --gap-xl: 34px;
+  --pad-card: 16px;
 
   /* ── Motion ── */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 140ms;
+  --dur-fast: 130ms;
   --dur: 240ms;
   --dur-slow: 420ms;
 
@@ -97,7 +104,6 @@
   color-scheme: dark;
 }
 
-/* Reduced motion — honor the OS setting AND a manual app toggle (.reduce-motion). */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-fast: 0ms;

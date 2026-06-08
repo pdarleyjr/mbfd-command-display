@@ -40,12 +40,13 @@ export function StationReadinessGrid({ stations, onSelect, className, columnsCla
       ) : (
         <div
           className={clsx(
-            'cg-scroll-y grid h-full min-h-0 content-start gap-2.5 auto-rows-[minmax(110px,1fr)]',
-            columnsClassName ?? 'grid-cols-2 xl:grid-cols-3',
+            'cg-scroll-y grid h-full min-h-0 content-start gap-2',
+            // One column of rows on every normal display; two columns only on a wall.
+            columnsClassName ?? 'grid-cols-1',
           )}
         >
           {sorted.map((s) => (
-            <StationCard key={s.id} station={s} onSelect={onSelect} className="min-h-[110px]" />
+            <StationCard key={s.id} station={s} onSelect={onSelect} />
           ))}
         </div>
       )}

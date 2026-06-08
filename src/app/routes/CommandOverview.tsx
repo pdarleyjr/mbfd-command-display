@@ -52,7 +52,7 @@ export function CommandOverview() {
 
           <ActiveRunsPanel className="cg-area-runs" data={incidents} servedFrom={inc.servedFrom} ageSeconds={inc.ageSeconds} />
 
-          <AiOperationalBrief className="cg-area-ai" ai={ai.data} status={aiStatus} ageSeconds={ai.ageSeconds} />
+          <AiOperationalBrief className="cg-area-ai" ai={ai.data} status={aiStatus} ageSeconds={ai.ageSeconds} snapshot={snapshot} />
 
           <LiveCameraNetwork className="cg-area-cams" />
 

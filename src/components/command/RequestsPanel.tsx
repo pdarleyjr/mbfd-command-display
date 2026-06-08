@@ -15,7 +15,7 @@ export function RequestsPanel({ requests, inventory, className }: Props) {
   const outOfStock = inventory?.out_of_stock ?? 0;
   return (
     <GlassPanel label="Requests & Supply" icon={<Boxes size={15} />} className={className} bodyClassName="min-h-0">
-      <div className="grid h-full grid-cols-2 content-center gap-x-4 gap-y-3">
+      <div className="grid grid-cols-2 content-start gap-x-5 gap-y-3 pt-1">
         <Metric
           label="Equip pending"
           value={fire?.pending ?? 0}

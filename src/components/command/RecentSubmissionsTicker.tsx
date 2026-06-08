@@ -61,16 +61,20 @@ function buildItems(snapshot?: DisplayOverview): Item[] {
       items.push({ icon: <Boxes size={14} />, text: `${s.inventory.stations_missing_today} stations missing today's inventory`, tone: 'text-attention' });
   }
   for (const d of (snapshot.defects?.items ?? []).slice(0, 6)) {
+    const unit = d.unit && d.unit !== 'Unknown' ? d.unit : null;
+    const item = d.item ?? 'item';
+    const state = (d.status ?? '').toLowerCase();
     items.push({
       icon: <Wrench size={14} />,
-      text: `${d.unit ?? 'Unit'}: ${d.item ?? 'item'} ${d.status?.toLowerCase()}${d.days_open ? ` (${d.days_open}d)` : ''}`,
-      tone: (d.status ?? '').toLowerCase() === 'missing' ? 'text-critical' : 'text-attention',
+      text: `${unit ? `${unit} · ` : ''}${item}${state ? ` ${state}` : ''}${d.days_open ? ` (${d.days_open}d)` : ''}`,
+      tone: state === 'missing' ? 'text-critical' : 'text-attention',
     });
   }
   for (const inv of (snapshot.inventory_exceptions?.items ?? []).slice(0, 5)) {
+    if (!inv.name) continue;
     items.push({
       icon: <Boxes size={14} />,
-      text: `${inv.name} ${inv.status} (${inv.stock}/${inv.reorder_min})`,
+      text: `${inv.name} — ${inv.stock}/${inv.reorder_min} (${inv.status === 'critical' ? 'out' : 'low'})`,
       tone: inv.status === 'critical' ? 'text-critical' : 'text-attention',
     });
   }

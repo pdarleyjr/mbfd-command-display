@@ -24,6 +24,7 @@ export function ActiveRunsPanel({ data, servedFrom, ageSeconds, className, filte
       label="Active Runs"
       icon={<Activity size={15} />}
       className={className}
+      tone={active.length > 0 ? 'live' : 'flat'}
       bodyClassName="min-h-0 overflow-hidden"
       right={<FreshnessBadge servedFrom={servedFrom} ageSeconds={ageSeconds} />}
     >

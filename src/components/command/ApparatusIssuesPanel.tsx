@@ -13,11 +13,13 @@ interface Props {
 /** Unresolved apparatus defects, most-aged first. Missing = critical (red). Read-only. */
 export function ApparatusIssuesPanel({ items, totalOpen, criticalMissing, className }: Props) {
   const sorted = [...(items ?? [])].sort((a, b) => (b.days_open ?? 0) - (a.days_open ?? 0));
+  const open = totalOpen ?? sorted.length;
   return (
     <GlassPanel
       label="Apparatus Issues"
       icon={<Wrench size={15} />}
       className={className}
+      tone={open > 0 ? 'attention' : 'flat'}
       bodyClassName="min-h-0 overflow-hidden"
       right={
         <span className="text-[11px] uppercase tracking-wider text-faint">
@@ -44,14 +46,18 @@ export function ApparatusIssuesPanel({ items, totalOpen, criticalMissing, classN
                 />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[13px] text-ink">
-                    <span className="font-semibold">{d.unit ?? 'Unit'}</span>
-                    <span className="text-mute"> · {d.item ?? 'Item'}</span>
+                    {d.unit && d.unit !== 'Unknown' && <span className="font-semibold">{d.unit} · </span>}
+                    <span className={d.unit && d.unit !== 'Unknown' ? 'text-mute' : 'font-semibold'}>{d.item ?? 'Item'}</span>
                   </div>
                 </div>
                 <span className={`shrink-0 text-[11px] font-semibold ${critical ? 'text-critical' : 'text-attention'}`}>
                   {d.status}
                 </span>
-                <span className="tnum w-10 shrink-0 text-right text-[11px] text-faint">{d.days_open ?? 0}d</span>
+                {d.days_open ? (
+                  <span className="tnum w-10 shrink-0 text-right text-[11px] text-faint">{d.days_open}d</span>
+                ) : (
+                  <span className="w-10 shrink-0" />
+                )}
               </li>
             );
           })}

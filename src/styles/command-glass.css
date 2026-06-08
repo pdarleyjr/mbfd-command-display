@@ -1,89 +1,110 @@
 /*
- * MBFD Command Glass — component primitives.
- * Glass panels are guaranteed-readable: they fall back to a solid surface where
- * backdrop-filter is unsupported, and always sit over a darkened image scrim so
- * text contrast holds (WCAG AA+).
+ * MBFD "Watch Desk" — surface + component primitives.
+ *
+ * Three surface treatments that ENCODE meaning (not decoration):
+ *   .cg-panel             reference / steady-state — FLAT on the canvas, hairline border.
+ *   .cg-panel--attention  needs-attention — faint critical wash + a left rule.
+ *   .cg-panel--live       live / fresh — slightly raised fill + soft shadow + top hairline.
+ * No backdrop blur, no glass sheen, no ambient glow. Depth is rare and means "look here".
  */
 
 .cg-panel {
   position: relative;
-  background: var(--glass-fill-solid);
-  border: 1px solid var(--glass-stroke);
+  background: var(--c-surface);
+  border: 1px solid var(--c-hairline);
   border-radius: var(--glass-radius);
-  box-shadow: var(--shadow-glass);
   overflow: hidden;
-}
-
-/* Progressive enhancement: real glass only where supported. */
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cg-panel {
-    background: var(--glass-fill);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(125%);
-    backdrop-filter: blur(var(--glass-blur)) saturate(125%);
-  }
 }
 
 .cg-panel--lg {
   border-radius: var(--glass-radius-lg);
-  box-shadow: var(--shadow-lg);
 }
 
-/* Interactive panels (drill-down). Cyan stroke appears only on hover/focus. */
-.cg-panel--interactive {
-  cursor: pointer;
-  transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
-    box-shadow var(--dur) var(--ease-out);
-}
-.cg-panel--interactive:hover,
-.cg-panel--interactive:focus-visible {
-  border-color: var(--glass-stroke-active);
-  box-shadow: var(--glow-cyan);
-  transform: translateY(-2px);
-  outline: none;
+/* (a) ATTENTION — tinted wash + left rule. */
+.cg-panel--attention {
+  border-color: color-mix(in oklab, var(--c-critical) 30%, var(--c-hairline));
+  border-left: 2px solid var(--c-critical);
+  background: color-mix(in oklab, var(--c-critical) 6%, var(--c-surface));
 }
 
-/* Top hairline sheen — the subtle "glass edge" highlight. */
-.cg-panel::before {
+/* (b) LIVE — raised, the only place we use a shadow. */
+.cg-panel--live {
+  background: var(--c-surface-3);
+  border-color: var(--c-hairline-strong);
+  box-shadow: var(--shadow-live);
+}
+.cg-panel--live::before {
   content: '';
   position: absolute;
   inset: 0 0 auto 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.14) 30%,
-    rgba(255, 255, 255, 0.14) 70%,
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12) 35%, rgba(255, 255, 255, 0.12) 65%, transparent);
   pointer-events: none;
+}
+
+/* Interactive (drill-down): navy border on hover/focus. No glow, no lift. */
+.cg-panel--interactive {
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+}
+.cg-panel--interactive:hover,
+.cg-panel--interactive:focus-visible {
+  border-color: var(--c-interactive);
+  background: var(--c-surface-2);
+  outline: none;
 }
 
 .cg-panel__body {
   padding: var(--pad-card);
 }
 
-/* Section label — small, tracked, faint. */
+/* Module height floors so a panel can never crush its content under its header. */
+.cg-area-issues,
+.cg-area-req,
+.cg-area-ai,
+.cg-area-runs,
+.cg-area-cams {
+  min-block-size: 232px;
+}
+.cg-area-grid {
+  min-block-size: 300px;
+}
+/* In the no-scroll wall, areas fill their tracks — drop the floors so nothing overflows. */
+html[data-display='1'] .cg-area-issues,
+html[data-display='1'] .cg-area-req,
+html[data-display='1'] .cg-area-ai,
+html[data-display='1'] .cg-area-runs,
+html[data-display='1'] .cg-area-cams,
+html[data-display='1'] .cg-area-grid {
+  min-block-size: 0;
+}
+
+/* Section label — small, tracked, display face. */
 .cg-label {
+  font-family: var(--font-display);
   font-size: var(--fs-label);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: var(--c-faint);
+  color: var(--c-mute);
   font-weight: 600;
 }
 
 /* Tabular numerals for all metrics. */
 .tnum {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum' 1, 'cv01' 1;
+  font-feature-settings: 'tnum' 1;
+}
+.font-display {
+  font-family: var(--font-display);
 }
 
 /* ── Status chips & dots (icon/label-bearing, never color-alone) ── */
 .cg-status {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-radius: 999px;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
   font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -95,7 +116,6 @@
   height: 8px;
   border-radius: 50%;
   flex: 0 0 auto;
-  box-shadow: 0 0 8px 0 currentColor;
 }
 .cg-status--ready {
   color: var(--c-ready);
@@ -126,7 +146,7 @@
 .cg-live {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-size: var(--fs-label);
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -140,26 +160,32 @@
   animation: live-blink 1.6s ease-in-out infinite;
 }
 
-/* Freshness pulse on data update. */
-.cg-fresh {
-  animation: fresh-pulse 2.2s ease-out;
+/* Readiness bar (under each station row). */
+.cg-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--c-surface-2);
+  overflow: hidden;
+}
+.cg-bar__fill {
+  height: 100%;
+  border-radius: 999px;
 }
 
-/* Image scrim — keeps text readable over station/admin imagery. */
+/* Freshness pulse on data update — a subtle border flash, no glow. */
+.cg-fresh {
+  animation: fresh-pulse 1.6s ease-out;
+}
+
+/* Image scrim — keeps text readable over station imagery (StationView hero). */
 .cg-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-      to top,
-      rgba(7, 12, 22, 0.92) 0%,
-      rgba(7, 12, 22, 0.55) 45%,
-      rgba(7, 12, 22, 0.25) 100%
-    ),
-    radial-gradient(120% 80% at 50% 0%, rgba(11, 18, 32, 0) 40%, rgba(11, 18, 32, 0.6) 100%);
+  background: linear-gradient(to top, rgba(9, 13, 20, 0.94) 0%, rgba(9, 13, 20, 0.5) 50%, rgba(9, 13, 20, 0.2) 100%);
   pointer-events: none;
 }
 
-/* A focusable, keyboard-accessible reset for clickable cards/buttons. */
+/* A focusable, keyboard-accessible reset for clickable cards/buttons/rows. */
 .cg-reset {
   appearance: none;
   border: 0;
@@ -173,25 +199,33 @@
 }
 
 @keyframes fresh-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(55, 230, 224, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 9px rgba(55, 230, 224, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(55, 230, 224, 0);
-  }
+  0% { border-color: var(--c-interactive); }
+  100% { border-color: var(--c-hairline); }
 }
 @keyframes live-blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
+
+/* One orchestrated page-load reveal (transform/opacity only). */
+@keyframes cg-reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.cg-overview > *,
+.cg-station > * {
+  animation: cg-reveal var(--dur-slow) var(--ease-out) both;
+}
+.cg-overview > *:nth-child(2),
+.cg-station > *:nth-child(2) { animation-delay: 40ms; }
+.cg-overview > *:nth-child(3),
+.cg-station > *:nth-child(3) { animation-delay: 80ms; }
+.cg-overview > *:nth-child(4),
+.cg-station > *:nth-child(4) { animation-delay: 120ms; }
+.cg-overview > *:nth-child(5),
+.cg-station > *:nth-child(5) { animation-delay: 160ms; }
+.cg-overview > *:nth-child(n + 6),
+.cg-station > *:nth-child(n + 6) { animation-delay: 200ms; }
 
 /* Activity ticker marquee. Duplicated track scrolls left; paused under reduced motion. */
 .cg-ticker {
@@ -202,24 +236,20 @@
   display: inline-flex;
   gap: var(--gap-lg);
   padding-left: var(--gap-lg);
-  animation: cg-ticker-scroll 48s linear infinite;
+  animation: cg-ticker-scroll 60s linear infinite;
 }
 .cg-ticker:hover .cg-ticker__track {
   animation-play-state: paused;
 }
 @keyframes cg-ticker-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cg-ticker__track {
-    animation: none;
-  }
+  .cg-ticker__track { animation: none; }
+  .cg-overview > *,
+  .cg-station > * { animation: none; }
 }
-html[data-motion='off'] .cg-ticker__track {
-  animation: none;
-}
+html[data-motion='off'] .cg-ticker__track { animation: none; }
+html[data-motion='off'] .cg-overview > *,
+html[data-motion='off'] .cg-station > * { animation: none; }

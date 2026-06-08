@@ -1,9 +1,7 @@
 import { clsx } from 'clsx';
 import type { DisplayStationSummary } from '@/types/display';
-import { assetForStation } from '@/data/stationAssets';
 import { territoryByNumber } from '@/data/stationTerritories';
-import { StationImage } from '@/components/common/StationImage';
-import { ReadinessChip } from '@/components/common/StatusChip';
+import { readinessVisual } from '@/lib/readiness';
 import { Anchor, Truck, Wrench } from '@/components/common/icons';
 
 interface Props {
@@ -12,78 +10,85 @@ interface Props {
   className?: string;
 }
 
-/** Station readiness card: image backdrop + readiness chip + glance counts + top reason. */
+/**
+ * Station readiness ROW: status left-rule · identity · glance stats · readiness % · bar.
+ * A row (not an image card) so the station name never truncates and there is no blank
+ * photo bar. The whole row is the drill-down control.
+ */
 export function StationCard({ station, onSelect, className }: Props) {
   const territory = territoryByNumber(station.number);
-  const asset = assetForStation(station.number);
-  const reason = station.readiness?.reasons?.[0];
+  const vis = readinessVisual(station.readiness?.status ?? 'UNKNOWN');
+  const color = statusColor(station.readiness?.status);
+  const percent = Number.isFinite(station.readiness?.percent) ? station.readiness.percent : null;
+  const name = station.name.replace(/^Station \d+\s*[—–-]\s*/, '');
 
   return (
     <button
       type="button"
       onClick={() => onSelect(station.number)}
+      aria-label={`Open ${station.name} command view — readiness ${percent ?? 'unknown'}`}
       className={clsx(
-        'cg-panel cg-panel--interactive cg-reset group relative flex min-h-0 flex-col justify-end overflow-hidden',
+        'cg-reset group flex flex-col gap-2 rounded-lg border border-[color:var(--c-hairline)] bg-[color:var(--c-surface-2)] px-3 py-2.5 transition-colors hover:border-[color:var(--c-interactive)] hover:bg-[color:var(--c-surface-3)]',
         className,
       )}
-      aria-label={`Open ${station.name} command view`}
+      style={{ borderLeft: `3px solid ${color}` }}
     >
-      <StationImage
-        asset={asset}
-        variant="square"
-        alt=""
-        className="absolute inset-0 h-full w-full"
-        imgClassName="transition-transform duration-700 group-hover:scale-105"
-      />
-      <div className="relative z-10 flex flex-col gap-1.5 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-1.5">
-            {territory?.isMarine ? (
-              <Anchor size={16} className="shrink-0 text-marine" />
-            ) : (
-              <span
-                className="grid h-6 w-6 shrink-0 place-content-center rounded-md text-xs font-extrabold text-abyss"
-                style={{ background: territory?.accent ?? '#4DA3FF' }}
-              >
-                {station.number}
+      <div className="flex items-center gap-3">
+        {territory?.isMarine ? (
+          <span className="grid h-8 w-8 shrink-0 place-content-center rounded-md bg-[color:var(--c-surface-3)] text-marine">
+            <Anchor size={17} />
+          </span>
+        ) : (
+          <span
+            className="grid h-8 w-8 shrink-0 place-content-center rounded-md font-display text-sm font-extrabold text-abyss"
+            style={{ background: territory?.accent ?? 'var(--c-interactive)' }}
+          >
+            {station.number}
+          </span>
+        )}
+
+        <div className="min-w-0 flex-1">
+          <div className="cg-clamp-2 font-display text-[15px] font-bold leading-tight text-ink">{name}</div>
+          <div className="truncate text-[11px] text-faint">{territory?.territoryLabel}</div>
+        </div>
+
+        <div className="hidden shrink-0 flex-col items-end gap-0.5 text-[11px] text-mute sm:flex">
+          <span className="inline-flex items-center gap-1">
+            <Truck size={12} className="text-faint" />
+            <span className="tnum text-ink">{station.in_service}</span>/<span className="tnum">{station.apparatus_count}</span>
+          </span>
+          <span className="inline-flex items-center gap-2">
+            {station.out_of_service > 0 && <span className="tnum text-critical">{station.out_of_service} OOS</span>}
+            {station.open_defects > 0 && (
+              <span className="tnum inline-flex items-center gap-0.5 text-attention">
+                <Wrench size={11} />
+                {station.open_defects}
               </span>
             )}
-            <span className="truncate text-sm font-bold text-ink drop-shadow">{station.name.replace(/^Station \d+\s*—\s*/, '')}</span>
+            {station.out_of_service === 0 && station.open_defects === 0 && <span className="text-ready">clear</span>}
+          </span>
+        </div>
+
+        <div className="shrink-0 text-right" style={{ minWidth: '4.5rem' }}>
+          <div className="tnum font-display font-extrabold leading-none" style={{ fontSize: 'var(--fs-metric-sm)', color }}>
+            {percent != null ? percent : '—'}
+            {percent != null && <span className="text-[0.5em] align-top text-mute">%</span>}
           </div>
-          <ReadinessChip status={station.readiness?.status ?? 'UNKNOWN'} className="shrink-0" />
+          <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color }}>
+            {vis.label}
+          </div>
         </div>
+      </div>
 
-        <div className="flex items-center gap-3 text-[12px] text-mute">
-          <span className="inline-flex items-center gap-1">
-            <Truck size={13} className="text-ready" />
-            <span className="tnum text-ink">{station.in_service}</span>/<span className="tnum">{station.apparatus_count}</span> in svc
-          </span>
-          {station.out_of_service > 0 && (
-            <span className="inline-flex items-center gap-1 text-critical">
-              <span className="tnum">{station.out_of_service}</span> OOS
-            </span>
-          )}
-          {station.open_defects > 0 && (
-            <span className="inline-flex items-center gap-1 text-attention">
-              <Wrench size={13} />
-              <span className="tnum">{station.open_defects}</span>
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between gap-2">
-          <span className="cg-clamp-2 text-[11px] leading-tight text-faint">{reason ?? territory?.territoryLabel}</span>
-          <span className="tnum shrink-0 text-lg font-extrabold" style={{ color: readinessColor(station) }}>
-            {Number.isFinite(station.readiness?.percent) ? `${station.readiness.percent}%` : '—'}
-          </span>
-        </div>
+      <div className="cg-bar">
+        <div className="cg-bar__fill" style={{ width: `${percent ?? 0}%`, background: color }} />
       </div>
     </button>
   );
 }
 
-function readinessColor(s: DisplayStationSummary): string {
-  switch (s.readiness?.status) {
+function statusColor(status: DisplayStationSummary['readiness']['status'] | undefined): string {
+  switch (status) {
     case 'READY':
       return 'var(--c-ready)';
     case 'ATTENTION':

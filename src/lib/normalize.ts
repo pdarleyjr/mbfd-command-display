@@ -8,10 +8,12 @@
  */
 
 import type {
+  DefectItem,
   DisplayApparatus,
   DisplayOverview,
   DisplayStationDetail,
   DisplayStationSummary,
+  InventoryExceptionItem,
   ReadinessStatus,
 } from '@/types/display';
 
@@ -58,11 +60,64 @@ function normalizeStation(s: RawStationSummary): DisplayStationSummary {
   };
 }
 
+/** Hub defect items use `apparatus_name`; the client renders `unit`. Reconcile + derive. */
+interface RawDefect {
+  unit?: string | null;
+  apparatus_name?: string | null;
+  item?: string | null;
+  status?: string;
+  reported_date?: string | null;
+  days_open?: number;
+}
+
+function normalizeDefect(d: RawDefect): DefectItem {
+  let daysOpen = typeof d.days_open === 'number' ? d.days_open : 0;
+  if (!daysOpen && d.reported_date) {
+    const t = Date.parse(d.reported_date);
+    if (!Number.isNaN(t)) daysOpen = Math.max(0, Math.round((Date.now() - t) / 86_400_000));
+  }
+  return {
+    unit: d.unit ?? d.apparatus_name ?? null,
+    item: d.item ?? null,
+    status: d.status ?? 'Open',
+    reported_date: d.reported_date ?? null,
+    days_open: daysOpen,
+  };
+}
+
+/** Hub inventory items send `out_of_stock` (bool) but no `status`; derive the enum. */
+interface RawInventory {
+  name?: string;
+  category?: string | null;
+  stock?: number;
+  reorder_min?: number;
+  status?: 'critical' | 'low';
+  out_of_stock?: boolean;
+}
+
+function normalizeInventory(i: RawInventory): InventoryExceptionItem {
+  const stock = typeof i.stock === 'number' ? i.stock : 0;
+  const reorderMin = typeof i.reorder_min === 'number' ? i.reorder_min : 0;
+  const status = i.status ?? (i.out_of_stock || stock <= 0 ? 'critical' : 'low');
+  return { name: i.name ?? 'Item', category: i.category ?? null, stock, reorder_min: reorderMin, status };
+}
+
 export function normalizeOverview(raw: DisplayOverview): DisplayOverview {
   const stations = Array.isArray(raw?.stations)
     ? (raw.stations as unknown as RawStationSummary[]).map(normalizeStation)
     : [];
-  return { ...raw, stations };
+  const defectItems = Array.isArray(raw?.defects?.items)
+    ? (raw.defects.items as unknown as RawDefect[]).map(normalizeDefect)
+    : [];
+  const inventoryItems = Array.isArray(raw?.inventory_exceptions?.items)
+    ? (raw.inventory_exceptions.items as unknown as RawInventory[]).filter((i) => i.name).map(normalizeInventory)
+    : [];
+  return {
+    ...raw,
+    stations,
+    defects: { ...raw.defects, items: defectItems },
+    inventory_exceptions: { ...raw.inventory_exceptions, items: inventoryItems },
+  };
 }
 
 interface RawApparatus {

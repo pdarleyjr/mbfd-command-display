@@ -9,6 +9,8 @@ interface GlassPanelProps {
   right?: ReactNode;
   large?: boolean;
   interactive?: boolean;
+  /** Surface treatment that encodes meaning: flat reference, attention, or live. */
+  tone?: 'flat' | 'attention' | 'live';
   onClick?: () => void;
   className?: string;
   bodyClassName?: string;
@@ -28,6 +30,7 @@ export function GlassPanel({
   right,
   large,
   interactive,
+  tone = 'flat',
   onClick,
   className,
   bodyClassName,
@@ -43,13 +46,15 @@ export function GlassPanel({
       className={clsx(
         'cg-panel flex min-h-0 flex-col text-left',
         large && 'cg-panel--lg',
+        tone === 'attention' && 'cg-panel--attention',
+        tone === 'live' && 'cg-panel--live',
         interactive && 'cg-panel--interactive cg-reset',
         fresh && 'cg-fresh',
         className,
       )}
     >
       {hasHeader && (
-        <header className="flex items-center justify-between gap-3 px-5 pt-4 pb-2">
+        <header className="flex min-h-[44px] items-center justify-between gap-3 px-4 pt-3 pb-2">
           <div className="flex items-center gap-2 text-mute">
             {icon}
             <span className="cg-label">{label ?? title}</span>
@@ -57,7 +62,7 @@ export function GlassPanel({
           {right}
         </header>
       )}
-      <div className={clsx('min-h-0 flex-1', hasHeader ? 'px-5 pb-4' : 'p-5', bodyClassName)}>
+      <div className={clsx('min-h-0 flex-1', hasHeader ? 'px-4 pb-3' : 'p-4', bodyClassName)}>
         {children}
       </div>
     </Tag>
