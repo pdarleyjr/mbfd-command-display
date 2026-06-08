@@ -1,0 +1,107 @@
+/*
+ * MBFD Command Glass — design tokens.
+ * Single source of truth for color, depth, type, and motion. Tailwind mirrors the
+ * color literals (tailwind.config.js); everything else is consumed via var(--token).
+ */
+
+:root {
+  /* ── Foundation: deep navy / graphite / black-blue ── */
+  --c-abyss: #070c16;
+  --c-bg: #0b1220;
+  --c-bg-2: #0f1a2e;
+  --c-bg-3: #13243e;
+  --c-surface: #16202f;
+  --c-surface-2: #1b2839;
+  --c-surface-3: #243349;
+  --c-hairline: rgba(146, 164, 190, 0.16);
+  --c-hairline-strong: rgba(146, 164, 190, 0.28);
+
+  /* ── Text ── */
+  --c-ink: #e6edf7;
+  --c-mute: #93a4be;
+  --c-faint: #5c6e89;
+
+  /* ── Status (always paired with icon + label, never color-alone) ── */
+  --c-ready: #21d07a;
+  --c-attention: #ffc53d;
+  --c-critical: #ff5c6c;
+  --c-info: #4da3ff;
+  --c-unknown: #6b7c98;
+
+  /* ── Accents ── */
+  --c-ember: #ff6a3d; /* restrained fire/critical/live accent */
+  --c-cyan: #37e6e0; /* interactive drill-down stroke */
+  --c-cyan-dim: #1e8f8b;
+  --c-marine: #2fb6c9; /* Station 6 marine layer */
+
+  /* Status tints (for soft fills behind text — kept low so text stays legible) */
+  --t-ready: rgba(33, 208, 122, 0.14);
+  --t-attention: rgba(255, 197, 61, 0.15);
+  --t-critical: rgba(255, 92, 108, 0.16);
+  --t-info: rgba(77, 163, 255, 0.14);
+  --t-cyan: rgba(55, 230, 224, 0.12);
+
+  /* ── Glass ── */
+  --glass-fill: linear-gradient(
+    160deg,
+    rgba(36, 51, 73, 0.55) 0%,
+    rgba(15, 26, 46, 0.62) 60%,
+    rgba(11, 18, 32, 0.7) 100%
+  );
+  --glass-fill-solid: #131e30; /* fallback when backdrop-filter unsupported */
+  --glass-stroke: rgba(146, 164, 190, 0.2);
+  --glass-stroke-active: rgba(55, 230, 224, 0.45);
+  --glass-blur: 18px;
+  --glass-radius: 16px;
+  --glass-radius-lg: 22px;
+
+  /* ── Depth ── */
+  --shadow-glass: 0 10px 40px -12px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  --shadow-lg: 0 24px 70px -18px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --glow-cyan: 0 0 0 1px rgba(55, 230, 224, 0.18), 0 0 24px -6px rgba(55, 230, 224, 0.35);
+  --glow-ember: 0 0 24px -6px rgba(255, 106, 61, 0.5);
+
+  /* ── Type scale (distance-readable; scales with display class via --type-scale) ── */
+  --type-scale: 1;
+  --fs-label: calc(0.72rem * var(--type-scale));
+  --fs-body: calc(0.9rem * var(--type-scale));
+  --fs-body-lg: calc(1.05rem * var(--type-scale));
+  --fs-title: calc(1.35rem * var(--type-scale));
+  --fs-metric-sm: calc(1.6rem * var(--type-scale));
+  --fs-metric: calc(2.4rem * var(--type-scale));
+  --fs-metric-lg: calc(3.6rem * var(--type-scale));
+
+  /* ── Spacing rhythm ── */
+  --gap-xs: 6px;
+  --gap-sm: 10px;
+  --gap: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 36px;
+  --pad-card: 20px;
+
+  /* ── Motion ── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur: 240ms;
+  --dur-slow: 420ms;
+
+  /* z-index ladder */
+  --z-scene: 0;
+  --z-content: 10;
+  --z-overlay: 40;
+  --z-modal: 60;
+  --z-toast: 80;
+
+  color-scheme: dark;
+}
+
+/* Reduced motion — honor the OS setting AND a manual app toggle (.reduce-motion). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}

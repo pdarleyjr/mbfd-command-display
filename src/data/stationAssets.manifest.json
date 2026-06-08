@@ -1,0 +1,170 @@
+{
+  "admin": {
+    "key": "admin",
+    "label": "MBFD Command",
+    "width": 1763,
+    "height": 1629,
+    "full": {
+      "avif": "/assets/stations/optimized/admin/full.avif",
+      "webp": "/assets/stations/optimized/admin/full.webp",
+      "png": "/assets/stations/optimized/admin/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/admin/hero.avif",
+      "webp": "/assets/stations/optimized/admin/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/admin/wide.avif",
+      "webp": "/assets/stations/optimized/admin/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/admin/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/admin/portrait.avif",
+      "webp": "/assets/stations/optimized/admin/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRrABAABXRUJQVlA4WAoAAAAQAAAAFwAAFQAAQUxQSAMBAAANuTJE9D80chxJciSJc87JJ+7/f7h33Mmcc9KzT/BCqxPIVSsRKx0bonYBIy0iJmAClvLLTTf2PfHYC6curWLEFR899cqKR7a898kXy0bQmqxmMOvoLqcHJjnosxGcH5REjaCoEyVEpCdG/NjkCCAcCRvsAEzZllHD2LVkP2+8E7aouSCiQv5zzf6+d4xJCkNYZBARk8VQDGkDk9ecTSC3HeG3xpMemWzx4AkCuANqhBRYboEVgLAgZEAg2eKnAjA/FUbcrtO3FP9ayyA6hcnJQ5u0pModXCKa7n5nqkwKXbNo4Nwzw9j30XdJyX7vGLUytmX9IEz2C+obizQCywLZCkgEAFZQOCCGAAAAUAUAnQEqGAAWAD7dWqZNqKUjojf6qAEQG4lAAAt2yFg9j/KCgwG3t4OVrTCivTYVBiUgAP7x0CVpQnr4vHDXcE0SjHJb010UdefYntfoZAW0+ZOtVwGqU8H92XEgg4zT2xATPvhP3ktYIr8ymCf4I5mHG3OfC39VU781LZSFryhPQDAAAAA=",
+    "color": "#080808"
+  },
+  "station-1": {
+    "key": "station-1",
+    "label": "Station 1 — South Beach",
+    "width": 2172,
+    "height": 1336,
+    "full": {
+      "avif": "/assets/stations/optimized/station-1/full.avif",
+      "webp": "/assets/stations/optimized/station-1/full.webp",
+      "png": "/assets/stations/optimized/station-1/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/station-1/hero.avif",
+      "webp": "/assets/stations/optimized/station-1/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/station-1/wide.avif",
+      "webp": "/assets/stations/optimized/station-1/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/station-1/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/station-1/portrait.avif",
+      "webp": "/assets/stations/optimized/station-1/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRkYBAABXRUJQVlA4WAoAAAAQAAAAFwAADgAAQUxQSMAAAAABuTJE9D8ASZIkR0pm9c6O2oWT5icYj+D/d06rteqqRNP8IGICJuCxg7EnTzqVBky9mYEh2lg5ITo7unghLiS1msmCIRLjzg6cCXsrW6+MnBwcBXFQ69XIiTEE4Whh6pkxbmPjwgHVOg3IqNWpSHA7CzeSRM6yIEIDFQNCtVYSwsXBngFDICIAAARAlABkRwcZFCTITo6kBICEUAgAqNi/SgkCuCghxiTJisBX+k5AQMDUerUJERCCnwVAIGld6wBWUDggYAAAABAEAJ0BKhgADwA+7WitTqmmJKIwCAEwHYllAJ0AHm4uHqvzMiTCCIMgAPxcpQn42sXri+HhV6/O0ukWNMDOJCeldEyBQo9BG52gMGYbVS1XlDnafR9n6DKU2ateMR/AAA==",
+    "color": "#080808"
+  },
+  "station-2": {
+    "key": "station-2",
+    "label": "Station 2 — Mid-Beach South",
+    "width": 2172,
+    "height": 807,
+    "full": {
+      "avif": "/assets/stations/optimized/station-2/full.avif",
+      "webp": "/assets/stations/optimized/station-2/full.webp",
+      "png": "/assets/stations/optimized/station-2/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/station-2/hero.avif",
+      "webp": "/assets/stations/optimized/station-2/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/station-2/wide.avif",
+      "webp": "/assets/stations/optimized/station-2/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/station-2/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/station-2/portrait.avif",
+      "webp": "/assets/stations/optimized/station-2/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRtYAAABXRUJQVlA4WAoAAAAQAAAAFwAACAAAQUxQSG4AAAABuYzof8BxZNtKdPAlcRADGRKju9u446wmgIgJUNi2DdKO8Q9r62Sk0sjwUAtETj6wUjACYLp5GslkIjyVbI7GCsGmAMPXDwQiAd56qcTJBwTYZgIdtl9+nq4unkYbsyvs+DP6GmFHCHDMEf6QAFZQOCBCAAAAsAMAnQEqGAAJAD7tcq1PqaekIjAIATAdiWcAxvQh3Grfhj4/ggAA/rBU81xzdTeVwlb2wFiM6Gmc2bWu3Fa3GAAA",
+    "color": "#080808"
+  },
+  "station-3": {
+    "key": "station-3",
+    "label": "Station 3 — Mid-Beach",
+    "width": 2172,
+    "height": 1461,
+    "full": {
+      "avif": "/assets/stations/optimized/station-3/full.avif",
+      "webp": "/assets/stations/optimized/station-3/full.webp",
+      "png": "/assets/stations/optimized/station-3/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/station-3/hero.avif",
+      "webp": "/assets/stations/optimized/station-3/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/station-3/wide.avif",
+      "webp": "/assets/stations/optimized/station-3/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/station-3/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/station-3/portrait.avif",
+      "webp": "/assets/stations/optimized/station-3/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRnwBAABXRUJQVlA4WAoAAAAQAAAAFwAADwAAQUxQSPQAAAANuS5E9D80khxJVm2Hmfl/2/tfkDfAzMzMS8jPWOorefRaZaYj/el9MHqKmIAJ6NlnzLwB1132UPZrjijQK8d9GXbfJZc9xitPXHM0ZNkj3Rf6APJzN7zk5tqUzH5f83CNMoKwFcTaM7Yhq0GHu0993dggGoQFG/9SLpMOG90HNhy11jCCwiik+oST6sNoKmrLPZAlU6rO1/bv356QYIxAGOAo/qGqifh4W51Tqh+lyPq4iLV/FzXdC8Qn1t3sCotPdkMG8RkInKH3KPQh0C3pIrEmwmvZDCOnWDuHpAmKdE3VBKlkc61ck06VGlBdEC7FTaUBVlA4IGIAAACQAwCdASoYABAAPu1iqU2ppaOiMAgBMB2JZgAAXhYWdIHbv6jAAPRVwzfwc3R3+FhXGzfdErb3gHge5ftuHHzo9f/4wMA7GzWAGy0nIY3K81uZ4LO/ASgFI3iQdurWe0AAAA==",
+    "color": "#080808"
+  },
+  "station-4": {
+    "key": "station-4",
+    "label": "Station 4 — North Beach",
+    "width": 2172,
+    "height": 1122,
+    "full": {
+      "avif": "/assets/stations/optimized/station-4/full.avif",
+      "webp": "/assets/stations/optimized/station-4/full.webp",
+      "png": "/assets/stations/optimized/station-4/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/station-4/hero.avif",
+      "webp": "/assets/stations/optimized/station-4/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/station-4/wide.avif",
+      "webp": "/assets/stations/optimized/station-4/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/station-4/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/station-4/portrait.avif",
+      "webp": "/assets/stations/optimized/station-4/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRkQBAABXRUJQVlA4WAoAAAAQAAAAFwAACwAAQUxQSMQAAAANuTJE9D80cBxJUmwxf5Px/kf6FjMzM18h+5PX6pWe9Vr93dXoebTu/ogJmIChw6a0W7frQrt7d8xQ6hvWUZswAG7tWHMN+b3XqVsHfxB0KezSOanCmFW32rmoYm5KQFFVMdXavCNpkKOmoJYk9eh3o2y1rhQlFUNDgUjwlSXzetj/rMwA5WXgoYWkQDbMKEB5O6zV6lVUUhLtgPMeyUO/UuaWUN5tZhoRuiSlP7Owt4BAJJ+TJfc8J94D0rLS/QsX44MBVlA4IFoAAACQAgCdASoYAAwAA4BaJYwCAAA8dRDohHUJVWgHIAD+4V0QkaZSjVDu9VD8fopck4dydcP1DZ9ej2JoGxuOiqt37zoSBVAazL/dkJxtooM8CFFcOh5+aZ1M0AA=",
+    "color": "#080808"
+  },
+  "station-6": {
+    "key": "station-6",
+    "label": "Station 6 — Marine",
+    "width": 2172,
+    "height": 1582,
+    "full": {
+      "avif": "/assets/stations/optimized/station-6/full.avif",
+      "webp": "/assets/stations/optimized/station-6/full.webp",
+      "png": "/assets/stations/optimized/station-6/full.png"
+    },
+    "hero": {
+      "avif": "/assets/stations/optimized/station-6/hero.avif",
+      "webp": "/assets/stations/optimized/station-6/hero.webp"
+    },
+    "wide": {
+      "avif": "/assets/stations/optimized/station-6/wide.avif",
+      "webp": "/assets/stations/optimized/station-6/wide.webp"
+    },
+    "square": {
+      "webp": "/assets/stations/optimized/station-6/square.webp"
+    },
+    "portrait": {
+      "avif": "/assets/stations/optimized/station-6/portrait.avif",
+      "webp": "/assets/stations/optimized/station-6/portrait.webp"
+    },
+    "lqip": "data:image/webp;base64,UklGRm4BAABXRUJQVlA4WAoAAAAQAAAAFwAAEAAAQUxQSNoAAAANuS5E9D80chTZdu3Kexcq0/xnpExz8N77IfRG6V3sC4ruZit6cNjpA/lviJiACZgIMAmmTYlZM+YtO7Nty7EN73ME6EqoQqEL/08cObRj06y+BFKUAmGX2qlzXfRR3H2LStytNfMhFlkFSrnWmbfxe3vPofqABRWWafb+uu99T9eGjwqBsj56dS0HvY/GA98SIAi9fPN/hPzPqBGAuJvCyrLH878X4uHsOn/36q0cxCPdxpmkVVnxeEeJv4dLT4AE3MinASn3kFJPImkVWTznEERGPktkeeTTAFZQOCBuAAAAMAQAnQEqGAARAD7dWKVNqKUjojf6qAEQG4lnALToHyQyqb0okSssoOIAAPyFAaG5plo/iQopnsRdjtuK2OsfDO/o+ef6GKQDJw1RtRmOh9iAPtqUk+3UbLyKrPSk6pOBWIf+A5D1v1riMwTO+AA=",
+    "color": "#080808"
+  }
+}

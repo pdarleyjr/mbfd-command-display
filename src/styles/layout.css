@@ -1,0 +1,248 @@
+/*
+ * MBFD Command Glass — layout regimes.
+ * layoutRegime.ts sets `data-regime` on <html> and the matching --type-scale, so
+ * the same DOM reflows from a laptop to a 12372×2160 video wall. Display/kiosk mode
+ * (data-display="1") locks to no-scroll, glance-first.
+ */
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: radial-gradient(140% 120% at 50% -10%, #0f1a2e 0%, var(--c-bg) 45%, var(--c-abyss) 100%);
+  color: var(--c-ink);
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow: hidden; /* the app owns its own scroll regions */
+}
+
+/* Per-regime type scale (also set imperatively by layoutRegime.ts for precision). */
+html[data-regime='compact'] {
+  --type-scale: 0.92;
+}
+html[data-regime='desktop'] {
+  --type-scale: 1;
+}
+html[data-regime='wide'] {
+  --type-scale: 1.18;
+}
+html[data-regime='ultrawide'] {
+  --type-scale: 1.4;
+}
+html[data-regime='wall'] {
+  --type-scale: 1.9;
+}
+html[data-regime='portrait'] {
+  --type-scale: 1.1;
+}
+
+/* App shell — fills the viewport, accounts for notches/bezels. */
+.cg-app {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: max(env(safe-area-inset-top), 14px) max(env(safe-area-inset-right), 16px)
+    max(env(safe-area-inset-bottom), 12px) max(env(safe-area-inset-left), 16px);
+  gap: var(--gap);
+  position: relative;
+  isolation: isolate;
+}
+
+/* The spatial WebGL scene sits behind content as an ambient layer. */
+.cg-scene-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scene);
+  pointer-events: none;
+}
+
+.cg-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* Scroll region used only in compact/portrait; wall/ultrawide stay no-scroll. */
+.cg-scroll-y {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+html[data-display='1'] .cg-scroll-y {
+  overflow: hidden;
+}
+
+/* ── Overview grid: 12-column fluid, components place themselves via spans ── */
+.cg-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, auto);
+  gap: var(--gap);
+  height: 100%;
+  min-height: 0;
+}
+.cg-grid--rows {
+  grid-template-rows: auto 1fr auto;
+}
+
+/* In no-scroll display mode the body grid fills exactly one screen. */
+html[data-display='1'] .cg-grid--fill {
+  grid-template-rows: 1fr;
+  height: 100%;
+}
+
+/* ── Command Overview composition ──
+ * Desktop+: a fixed 12×6 grid that fills one screen (no scroll). Compact/portrait:
+ * stacks into a scrollable column. Panels claim areas via .cg-area-* classes.
+ */
+.cg-overview {
+  display: grid;
+  gap: var(--gap);
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    'map map map map map grid grid grid grid runs runs runs'
+    'map map map map map grid grid grid grid runs runs runs'
+    'map map map map map grid grid grid grid ai ai ai'
+    'map map map map map grid grid grid grid ai ai ai'
+    'cams cams cams cams cams grid grid grid grid ai ai ai'
+    'cams cams cams cams cams issues issues issues issues req req req';
+}
+.cg-area-map {
+  grid-area: map;
+  min-height: 0;
+}
+.cg-area-grid {
+  grid-area: grid;
+  min-height: 0;
+}
+.cg-area-runs {
+  grid-area: runs;
+  min-height: 0;
+}
+.cg-area-ai {
+  grid-area: ai;
+  min-height: 0;
+}
+.cg-area-cams {
+  grid-area: cams;
+  min-height: 0;
+}
+.cg-area-issues {
+  grid-area: issues;
+  min-height: 0;
+}
+.cg-area-req {
+  grid-area: req;
+  min-height: 0;
+}
+
+/* Stack + scroll on compact / portrait (or when not in display mode on narrow screens). */
+@media (max-width: 1279px) {
+  .cg-overview {
+    display: flex;
+    flex-direction: column;
+    grid-template: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .cg-overview > * {
+    min-height: 280px;
+  }
+}
+html[data-regime='portrait'] .cg-overview {
+  display: flex;
+  flex-direction: column;
+  grid-template: none;
+  overflow-y: auto;
+}
+html[data-regime='portrait'] .cg-overview > * {
+  min-height: 320px;
+}
+
+/* Station view: hero + two content columns; stacks on compact/portrait. */
+.cg-station {
+  display: grid;
+  gap: var(--gap);
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    'hero hero hero hero hero hero hero hero cams cams cams cams'
+    'appr appr appr ppl ppl ppl runs runs runs cams cams cams'
+    'appr appr appr subs subs subs runs runs runs ai ai ai';
+}
+.cg-sarea-hero { grid-area: hero; min-height: 0; }
+.cg-sarea-appr { grid-area: appr; min-height: 0; }
+.cg-sarea-ppl { grid-area: ppl; min-height: 0; }
+.cg-sarea-subs { grid-area: subs; min-height: 0; }
+.cg-sarea-runs { grid-area: runs; min-height: 0; }
+.cg-sarea-cams { grid-area: cams; min-height: 0; }
+.cg-sarea-ai { grid-area: ai; min-height: 0; }
+
+@media (max-width: 1279px) {
+  .cg-station {
+    display: flex;
+    flex-direction: column;
+    grid-template: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .cg-station > * {
+    min-height: 260px;
+  }
+  .cg-station > .cg-sarea-hero {
+    min-height: 220px;
+  }
+}
+html[data-regime='portrait'] .cg-station {
+  display: flex;
+  flex-direction: column;
+  grid-template: none;
+  overflow-y: auto;
+}
+html[data-regime='portrait'] .cg-station > * {
+  min-height: 300px;
+}
+
+/* Scrollbars — slim, on-brand. */
+.cg-scroll-y::-webkit-scrollbar {
+  width: 8px;
+}
+.cg-scroll-y::-webkit-scrollbar-thumb {
+  background: var(--c-surface-3);
+  border-radius: 8px;
+}
+.cg-scroll-y::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Utility: clamp text to N lines. */
+.cg-clamp-2,
+.cg-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cg-clamp-2 {
+  -webkit-line-clamp: 2;
+}
+.cg-clamp-3 {
+  -webkit-line-clamp: 3;
+}
+
+/* Focus ring for keyboard nav across the app. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--c-cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}

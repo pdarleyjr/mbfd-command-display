@@ -1,0 +1,225 @@
+/*
+ * MBFD Command Glass — component primitives.
+ * Glass panels are guaranteed-readable: they fall back to a solid surface where
+ * backdrop-filter is unsupported, and always sit over a darkened image scrim so
+ * text contrast holds (WCAG AA+).
+ */
+
+.cg-panel {
+  position: relative;
+  background: var(--glass-fill-solid);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--shadow-glass);
+  overflow: hidden;
+}
+
+/* Progressive enhancement: real glass only where supported. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cg-panel {
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(125%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(125%);
+  }
+}
+
+.cg-panel--lg {
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Interactive panels (drill-down). Cyan stroke appears only on hover/focus. */
+.cg-panel--interactive {
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
+}
+.cg-panel--interactive:hover,
+.cg-panel--interactive:focus-visible {
+  border-color: var(--glass-stroke-active);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+/* Top hairline sheen — the subtle "glass edge" highlight. */
+.cg-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.14) 30%,
+    rgba(255, 255, 255, 0.14) 70%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.cg-panel__body {
+  padding: var(--pad-card);
+}
+
+/* Section label — small, tracked, faint. */
+.cg-label {
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-faint);
+  font-weight: 600;
+}
+
+/* Tabular numerals for all metrics. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'cv01' 1;
+}
+
+/* ── Status chips & dots (icon/label-bearing, never color-alone) ── */
+.cg-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.cg-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  box-shadow: 0 0 8px 0 currentColor;
+}
+.cg-status--ready {
+  color: var(--c-ready);
+  background: var(--t-ready);
+}
+.cg-status--attention {
+  color: var(--c-attention);
+  background: var(--t-attention);
+}
+.cg-status--critical {
+  color: var(--c-critical);
+  background: var(--t-critical);
+}
+.cg-status--incomplete {
+  color: var(--c-attention);
+  background: var(--t-attention);
+}
+.cg-status--info {
+  color: var(--c-info);
+  background: var(--t-info);
+}
+.cg-status--unknown {
+  color: var(--c-unknown);
+  background: rgba(107, 124, 152, 0.16);
+}
+
+/* Live indicator (cameras / active runs). */
+.cg-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--c-ember);
+}
+.cg-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-ember);
+  animation: live-blink 1.6s ease-in-out infinite;
+}
+
+/* Freshness pulse on data update. */
+.cg-fresh {
+  animation: fresh-pulse 2.2s ease-out;
+}
+
+/* Image scrim — keeps text readable over station/admin imagery. */
+.cg-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      to top,
+      rgba(7, 12, 22, 0.92) 0%,
+      rgba(7, 12, 22, 0.55) 45%,
+      rgba(7, 12, 22, 0.25) 100%
+    ),
+    radial-gradient(120% 80% at 50% 0%, rgba(11, 18, 32, 0) 40%, rgba(11, 18, 32, 0.6) 100%);
+  pointer-events: none;
+}
+
+/* A focusable, keyboard-accessible reset for clickable cards/buttons. */
+.cg-reset {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+@keyframes fresh-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(55, 230, 224, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(55, 230, 224, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(55, 230, 224, 0);
+  }
+}
+@keyframes live-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Activity ticker marquee. Duplicated track scrolls left; paused under reduced motion. */
+.cg-ticker {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.cg-ticker__track {
+  display: inline-flex;
+  gap: var(--gap-lg);
+  padding-left: var(--gap-lg);
+  animation: cg-ticker-scroll 48s linear infinite;
+}
+.cg-ticker:hover .cg-ticker__track {
+  animation-play-state: paused;
+}
+@keyframes cg-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cg-ticker__track {
+    animation: none;
+  }
+}
+html[data-motion='off'] .cg-ticker__track {
+  animation: none;
+}

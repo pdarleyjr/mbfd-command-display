@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MBFD Command">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#13243E"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)"/>
+  <path d="M32 12c5 6 3 10 1 13 4-1 6-4 6-9 5 5 7 12 7 17a14 14 0 1 1-28 0c0-6 4-11 8-15-1 4 0 7 3 9-2-6 0-12-4-15z" fill="#FF6A3D"/>
+  <circle cx="32" cy="40" r="6" fill="#37E6E0"/>
+</svg>

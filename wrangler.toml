@@ -1,0 +1,20 @@
+# Cloudflare Pages + Functions config for the MBFD Command Display.
+# The SPA build output is ./dist; Functions live in ./functions and are deployed
+# automatically by Pages. Secrets (HUB_BASE, HUB_DISPLAY_TOKEN) are set via
+# `wrangler pages secret put` / the dashboard — never committed here.
+name = "mbfd-command-display"
+compatibility_date = "2026-06-01"
+pages_build_output_dir = "dist"
+
+# Last-good snapshot store (degrade-never-blank). Create with:
+#   wrangler kv namespace create mbfd_command_snapshots
+# then paste the id below and bind for both production and preview.
+[[kv_namespaces]]
+binding = "SNAPSHOTS"
+id = "10e91ca3b649480a97a239c98209816d"
+
+[vars]
+# Non-secret defaults; secrets are injected via `wrangler pages secret put`.
+HUB_BASE = "https://www.mbfdhub.com"
+SNAPSHOT_TTL_SECONDS = "300"
+AI_SNAPSHOT_TTL_SECONDS = "1800"
