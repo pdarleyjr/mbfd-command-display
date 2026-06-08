@@ -37,20 +37,20 @@ export function StationCard({ station, onSelect, className }: Props) {
       />
       <div className="relative z-10 flex flex-col gap-1.5 p-3">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex min-w-0 items-center gap-1.5">
             {territory?.isMarine ? (
-              <Anchor size={16} className="text-marine" />
+              <Anchor size={16} className="shrink-0 text-marine" />
             ) : (
               <span
-                className="grid h-6 w-6 place-content-center rounded-md text-xs font-extrabold text-abyss"
+                className="grid h-6 w-6 shrink-0 place-content-center rounded-md text-xs font-extrabold text-abyss"
                 style={{ background: territory?.accent ?? '#4DA3FF' }}
               >
                 {station.number}
               </span>
             )}
-            <span className="text-sm font-bold text-ink drop-shadow">{station.name.replace(/^Station \d+\s*—\s*/, '')}</span>
+            <span className="truncate text-sm font-bold text-ink drop-shadow">{station.name.replace(/^Station \d+\s*—\s*/, '')}</span>
           </div>
-          <ReadinessChip status={station.readiness?.status ?? 'UNKNOWN'} />
+          <ReadinessChip status={station.readiness?.status ?? 'UNKNOWN'} className="shrink-0" />
         </div>
 
         <div className="flex items-center gap-3 text-[12px] text-mute">

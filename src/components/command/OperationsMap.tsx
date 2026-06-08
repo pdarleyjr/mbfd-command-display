@@ -3,6 +3,9 @@ import { Canvas } from '@react-three/fiber';
 import type { DisplayStationSummary, IncidentRecord } from '@/types/display';
 import { STATION_TERRITORIES } from '@/data/stationTerritories';
 import { detectWebGL } from '@/lib/webgl';
+import { isNoScrollRegime } from '@/lib/layoutRegime';
+import { useViewportRegime } from '@/hooks/useEnvironment';
+import { useUiStore } from '@/store/uiStore';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { MapPin } from '@/components/common/icons';
 import { SpatialCommandScene } from '@/components/three/SpatialCommandScene';
@@ -32,8 +35,13 @@ export function OperationsMap({
   reducedMotion = false,
   className,
 }: OperationsMapProps) {
+  // The 3D spatial scene is reserved for genuine video walls (or the manual Wall toggle),
+  // where its scale reads as intentional. On laptops/desktops the labeled top-down 2D map
+  // is far more legible, so it is the default there. GPU "Off" forces 2D everywhere.
+  const regime = useViewportRegime();
+  const wallMode = useUiStore((s) => s.displayMode) || isNoScrollRegime(regime);
   const webgl = detectWebGL();
-  const use2D = quality === 'off' || !webgl;
+  const use2D = quality === 'off' || !webgl || !wallMode;
   const sceneQuality: 'high' | 'low' = quality === 'low' ? 'low' : 'high';
 
   const fallback = (

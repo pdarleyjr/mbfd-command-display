@@ -1,8 +1,19 @@
 /*
- * MBFD Command Glass — layout regimes.
- * layoutRegime.ts sets `data-regime` on <html> and the matching --type-scale, so
- * the same DOM reflows from a laptop to a 12372×2160 video wall. Display/kiosk mode
- * (data-display="1") locks to no-scroll, glance-first.
+ * MBFD Command Glass — layout engine.
+ *
+ * Two layout modes, chosen by viewport (layoutRegime.ts sets data-regime + data-display
+ * on <html>):
+ *
+ *   • FLOW  (default — laptops, desktops, standard monitors, portrait): a content-sized,
+ *           gently scrolling composition. Header and the bottom trust bars stay pinned;
+ *           the body scrolls between them. Panels are tall enough to read and never overlap.
+ *
+ *   • FILL  (data-display="1" — genuine video walls / ultrawide, or the manual "Wall"
+ *           toggle): one screen, no scroll, every panel sized to fit and scrolling
+ *           internally. This is the glance-first wall view.
+ *
+ * The same DOM serves a 1366×768 laptop and a 12372×2160 wall — only the grid template and
+ * scroll behavior change.
  */
 
 html,
@@ -29,26 +40,26 @@ html[data-regime='desktop'] {
   --type-scale: 1;
 }
 html[data-regime='wide'] {
-  --type-scale: 1.18;
+  --type-scale: 1.12;
 }
 html[data-regime='ultrawide'] {
-  --type-scale: 1.4;
+  --type-scale: 1.32;
 }
 html[data-regime='wall'] {
-  --type-scale: 1.9;
+  --type-scale: 1.8;
 }
 html[data-regime='portrait'] {
-  --type-scale: 1.1;
+  --type-scale: 1.05;
 }
 
-/* App shell — fills the viewport, accounts for notches/bezels. */
+/* App shell — fills the viewport; header + body + bars in a column. */
 .cg-app {
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: max(env(safe-area-inset-top), 14px) max(env(safe-area-inset-right), 16px)
-    max(env(safe-area-inset-bottom), 12px) max(env(safe-area-inset-left), 16px);
-  gap: var(--gap);
+  padding: max(env(safe-area-inset-top), 12px) max(env(safe-area-inset-right), 14px)
+    max(env(safe-area-inset-bottom), 10px) max(env(safe-area-inset-left), 14px);
+  gap: var(--gap-sm);
   position: relative;
   isolation: isolate;
 }
@@ -61,51 +72,48 @@ html[data-regime='portrait'] {
   pointer-events: none;
 }
 
+/* Body region between the header and the bottom bars. Owns the scroll. */
 .cg-main {
   flex: 1 1 auto;
   min-height: 0;
   position: relative;
   z-index: var(--z-content);
+  display: flex;
+}
+.cg-main > * {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-/* Scroll region used only in compact/portrait; wall/ultrawide stay no-scroll. */
+/* Generic scroll region — slim, on-brand, momentum-contained. */
 .cg-scroll-y {
-  height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-html[data-display='1'] .cg-scroll-y {
-  overflow: hidden;
-}
 
-/* ── Overview grid: 12-column fluid, components place themselves via spans ── */
-.cg-grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, auto);
-  gap: var(--gap);
-  height: 100%;
-  min-height: 0;
-}
-.cg-grid--rows {
-  grid-template-rows: auto 1fr auto;
-}
+/* ══════════════════════════════════════════════════════════════════════════
+ * COMMAND OVERVIEW
+ * ════════════════════════════════════════════════════════════════════════ */
 
-/* In no-scroll display mode the body grid fills exactly one screen. */
-html[data-display='1'] .cg-grid--fill {
-  grid-template-rows: 1fr;
-  height: 100%;
-}
-
-/* ── Command Overview composition ──
- * Desktop+: a fixed 12×6 grid that fills one screen (no scroll). Compact/portrait:
- * stacks into a scrollable column. Panels claim areas via .cg-area-* classes.
- */
+/* ── FLOW (default): three definite bands, scrolls when the screen is short ── */
 .cg-overview {
   display: grid;
   gap: var(--gap);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    'map map map map map map map grid grid grid grid grid'
+    'runs runs runs ai ai ai ai ai cams cams cams cams'
+    'issues issues issues issues issues issues issues req req req req req';
+  grid-template-rows: minmax(300px, 46vh) minmax(232px, 32vh) minmax(184px, 24vh);
   height: 100%;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px; /* breathing room for the scrollbar */
+}
+
+/* ── FILL (wall / ultrawide / manual): one screen, no scroll ── */
+html[data-display='1'] .cg-overview {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: repeat(6, minmax(0, 1fr));
   grid-template-areas:
@@ -115,114 +123,128 @@ html[data-display='1'] .cg-grid--fill {
     'map map map map map grid grid grid grid ai ai ai'
     'cams cams cams cams cams grid grid grid grid ai ai ai'
     'cams cams cams cams cams issues issues issues issues req req req';
-}
-.cg-area-map {
-  grid-area: map;
-  min-height: 0;
-}
-.cg-area-grid {
-  grid-area: grid;
-  min-height: 0;
-}
-.cg-area-runs {
-  grid-area: runs;
-  min-height: 0;
-}
-.cg-area-ai {
-  grid-area: ai;
-  min-height: 0;
-}
-.cg-area-cams {
-  grid-area: cams;
-  min-height: 0;
-}
-.cg-area-issues {
-  grid-area: issues;
-  min-height: 0;
-}
-.cg-area-req {
-  grid-area: req;
-  min-height: 0;
+  overflow: hidden;
+  padding-right: 0;
 }
 
-/* Stack + scroll on compact / portrait (or when not in display mode on narrow screens). */
+.cg-area-map { grid-area: map; min-height: 0; min-width: 0; }
+.cg-area-grid { grid-area: grid; min-height: 0; min-width: 0; }
+.cg-area-runs { grid-area: runs; min-height: 0; min-width: 0; }
+.cg-area-ai { grid-area: ai; min-height: 0; min-width: 0; }
+.cg-area-cams { grid-area: cams; min-height: 0; min-width: 0; }
+.cg-area-issues { grid-area: issues; min-height: 0; min-width: 0; }
+.cg-area-req { grid-area: req; min-height: 0; min-width: 0; }
+
+/* ── Narrow (small laptops / tablets): single scrolling column ── */
 @media (max-width: 1279px) {
-  .cg-overview {
-    display: flex;
-    flex-direction: column;
-    grid-template: none;
+  .cg-overview,
+  html[data-display='1'] .cg-overview {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas: 'map' 'grid' 'runs' 'ai' 'cams' 'issues' 'req';
+    grid-auto-rows: clamp(260px, 40vh, 420px);
     overflow-y: auto;
-    overscroll-behavior: contain;
+    padding-right: 2px;
   }
-  .cg-overview > * {
-    min-height: 280px;
-  }
+  .cg-area-map { height: clamp(300px, 48vh, 520px); }
 }
+
+/* ── Portrait monitors: two columns, scrolls ── */
 html[data-regime='portrait'] .cg-overview {
-  display: flex;
-  flex-direction: column;
-  grid-template: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: none;
+  grid-template-areas:
+    'map map'
+    'grid grid'
+    'runs ai'
+    'cams cams'
+    'issues req';
+  grid-auto-rows: clamp(280px, 30vh, 520px);
   overflow-y: auto;
 }
-html[data-regime='portrait'] .cg-overview > * {
-  min-height: 320px;
-}
 
-/* Station view: hero + two content columns; stacks on compact/portrait. */
+/* ══════════════════════════════════════════════════════════════════════════
+ * STATION VIEW
+ * ════════════════════════════════════════════════════════════════════════ */
+
+/* ── FLOW (default) ── */
 .cg-station {
   display: grid;
   gap: var(--gap);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    'hero hero hero hero hero hero hero hero cams cams cams cams'
+    'appr appr appr appr ppl ppl ppl ppl cams cams cams cams'
+    'runs runs runs runs subs subs subs subs ai ai ai ai';
+  grid-template-rows: minmax(220px, 30vh) minmax(240px, 32vh) minmax(220px, 28vh);
   height: 100%;
   min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+
+/* ── FILL (wall / ultrawide / manual) ── */
+html[data-display='1'] .cg-station {
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: auto repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
     'hero hero hero hero hero hero hero hero cams cams cams cams'
     'appr appr appr ppl ppl ppl runs runs runs cams cams cams'
     'appr appr appr subs subs subs runs runs runs ai ai ai';
+  overflow: hidden;
+  padding-right: 0;
 }
-.cg-sarea-hero { grid-area: hero; min-height: 0; }
-.cg-sarea-appr { grid-area: appr; min-height: 0; }
-.cg-sarea-ppl { grid-area: ppl; min-height: 0; }
-.cg-sarea-subs { grid-area: subs; min-height: 0; }
-.cg-sarea-runs { grid-area: runs; min-height: 0; }
-.cg-sarea-cams { grid-area: cams; min-height: 0; }
-.cg-sarea-ai { grid-area: ai; min-height: 0; }
+
+.cg-sarea-hero { grid-area: hero; min-height: 0; min-width: 0; }
+.cg-sarea-appr { grid-area: appr; min-height: 0; min-width: 0; }
+.cg-sarea-ppl { grid-area: ppl; min-height: 0; min-width: 0; }
+.cg-sarea-subs { grid-area: subs; min-height: 0; min-width: 0; }
+.cg-sarea-runs { grid-area: runs; min-height: 0; min-width: 0; }
+.cg-sarea-cams { grid-area: cams; min-height: 0; min-width: 0; }
+.cg-sarea-ai { grid-area: ai; min-height: 0; min-width: 0; }
 
 @media (max-width: 1279px) {
-  .cg-station {
-    display: flex;
-    flex-direction: column;
-    grid-template: none;
+  .cg-station,
+  html[data-display='1'] .cg-station {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas: 'hero' 'appr' 'ppl' 'subs' 'runs' 'cams' 'ai';
+    grid-auto-rows: clamp(240px, 40vh, 420px);
     overflow-y: auto;
-    overscroll-behavior: contain;
+    padding-right: 2px;
   }
-  .cg-station > * {
-    min-height: 260px;
-  }
-  .cg-station > .cg-sarea-hero {
-    min-height: 220px;
-  }
-}
-html[data-regime='portrait'] .cg-station {
-  display: flex;
-  flex-direction: column;
-  grid-template: none;
-  overflow-y: auto;
-}
-html[data-regime='portrait'] .cg-station > * {
-  min-height: 300px;
+  .cg-sarea-hero { height: clamp(220px, 32vh, 360px); }
 }
 
-/* Scrollbars — slim, on-brand. */
-.cg-scroll-y::-webkit-scrollbar {
-  width: 8px;
+html[data-regime='portrait'] .cg-station {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: none;
+  grid-template-areas:
+    'hero hero'
+    'appr ppl'
+    'subs runs'
+    'cams cams'
+    'ai ai';
+  grid-auto-rows: clamp(260px, 28vh, 480px);
+  overflow-y: auto;
 }
-.cg-scroll-y::-webkit-scrollbar-thumb {
+
+/* ── Scrollbars — slim, on-brand. ── */
+.cg-scroll-y::-webkit-scrollbar,
+.cg-overview::-webkit-scrollbar,
+.cg-station::-webkit-scrollbar {
+  width: 9px;
+}
+.cg-scroll-y::-webkit-scrollbar-thumb,
+.cg-overview::-webkit-scrollbar-thumb,
+.cg-station::-webkit-scrollbar-thumb {
   background: var(--c-surface-3);
   border-radius: 8px;
 }
-.cg-scroll-y::-webkit-scrollbar-track {
+.cg-scroll-y::-webkit-scrollbar-track,
+.cg-overview::-webkit-scrollbar-track,
+.cg-station::-webkit-scrollbar-track {
   background: transparent;
 }
 

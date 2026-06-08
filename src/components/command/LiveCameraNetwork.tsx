@@ -30,9 +30,9 @@ export function LiveCameraNetwork({
       bodyClassName="min-h-0"
       right={<span className="text-[11px] uppercase tracking-wider text-faint">{list.length} feeds</span>}
     >
-      <div className={clsx('grid h-full min-h-0 gap-2', columnsClassName)}>
+      <div className={clsx('cg-scroll-y grid h-full min-h-0 content-start gap-2 auto-rows-[minmax(104px,1fr)]', columnsClassName)}>
         {list.map((cam) => (
-          <CameraTile key={cam.id} camera={cam} allowRefresh={allowRefresh} className="min-h-0" />
+          <CameraTile key={cam.id} camera={cam} allowRefresh={allowRefresh} className="!aspect-auto min-h-0" />
         ))}
       </div>
     </GlassPanel>

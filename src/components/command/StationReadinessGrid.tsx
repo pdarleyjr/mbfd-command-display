@@ -38,9 +38,14 @@ export function StationReadinessGrid({ stations, onSelect, className, columnsCla
       {sorted.length === 0 ? (
         <EmptyState icon={<Grid size={22} />} title="No station data" hint="Awaiting hub snapshot" />
       ) : (
-        <div className={clsx('grid h-full min-h-0 gap-2.5', columnsClassName ?? 'grid-cols-2 xl:grid-cols-3')}>
+        <div
+          className={clsx(
+            'cg-scroll-y grid h-full min-h-0 content-start gap-2.5 auto-rows-[minmax(110px,1fr)]',
+            columnsClassName ?? 'grid-cols-2 xl:grid-cols-3',
+          )}
+        >
           {sorted.map((s) => (
-            <StationCard key={s.id} station={s} onSelect={onSelect} className="min-h-[112px]" />
+            <StationCard key={s.id} station={s} onSelect={onSelect} className="min-h-[110px]" />
           ))}
         </div>
       )}

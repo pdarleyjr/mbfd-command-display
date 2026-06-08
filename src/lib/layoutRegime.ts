@@ -15,10 +15,10 @@ export type LayoutRegime =
 const TYPE_SCALE: Record<LayoutRegime, number> = {
   compact: 0.92,
   desktop: 1,
-  wide: 1.18,
-  ultrawide: 1.4,
-  wall: 1.9,
-  portrait: 1.1,
+  wide: 1.12,
+  ultrawide: 1.32,
+  wall: 1.8,
+  portrait: 1.05,
 };
 
 export function detectRegime(width: number, height: number): LayoutRegime {
@@ -35,9 +35,15 @@ export function typeScaleFor(regime: LayoutRegime): number {
   return TYPE_SCALE[regime];
 }
 
-/** True for regimes that should never scroll (glance-first display walls). */
+/**
+ * True for regimes that should fill exactly one screen with no scroll (glance-first
+ * video walls). Standard monitors and laptops — including 1080p "wide" — get the
+ * scrolling FLOW layout instead, because a single 1080p screen cannot legibly hold the
+ * full command composition without cramming. Only genuine walls / ultrawide arrays, or
+ * the manual Wall toggle, lock to no-scroll.
+ */
 export function isNoScrollRegime(regime: LayoutRegime): boolean {
-  return regime === 'wall' || regime === 'ultrawide' || regime === 'wide';
+  return regime === 'wall' || regime === 'ultrawide';
 }
 
 export function applyRegime(regime: LayoutRegime, displayMode: boolean): void {

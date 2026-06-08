@@ -34,14 +34,14 @@ export function CommandStrip({ title = 'MBFD Command Display', subtitle, leading
 
   return (
     <header className="cg-panel flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-2.5">
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3">
         {leading}
-        <span className="grid h-9 w-9 place-content-center rounded-lg bg-gradient-to-b from-navy-700 to-abyss text-ember shadow-glass">
+        <span className="grid h-9 w-9 shrink-0 place-content-center rounded-lg bg-gradient-to-b from-navy-700 to-abyss text-ember shadow-glass">
           <Flame size={20} />
         </span>
-        <div className="leading-tight">
-          <div className="text-[15px] font-extrabold tracking-tight text-ink">{title}</div>
-          <div className="text-[11px] uppercase tracking-[0.16em] text-faint">{subtitle ?? 'Miami Beach Fire Department'}</div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-[15px] font-extrabold tracking-tight text-ink">{title}</div>
+          <div className="truncate text-[11px] uppercase tracking-[0.16em] text-faint">{subtitle ?? 'Miami Beach Fire Department'}</div>
         </div>
       </div>
 

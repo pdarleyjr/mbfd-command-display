@@ -30,7 +30,7 @@ export function StationCameraPanel({ stationNumber, className }: { stationNumber
               Nearest available feeds are just outside this territory (context).
             </p>
           )}
-          <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 xl:grid-cols-3">
+          <div className="cg-scroll-y grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-2 xl:grid-cols-3">
             {cameras.slice(0, 6).map((cam) => (
               <CameraTile key={cam.id} camera={cam} allowRefresh className="min-h-0" />
             ))}

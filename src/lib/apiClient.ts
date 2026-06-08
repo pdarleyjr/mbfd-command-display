@@ -26,6 +26,16 @@ export interface ApiResult<T> {
 }
 
 export async function getJson<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+  // DEV-only mock path (dead-code-eliminated in production builds).
+  if (import.meta.env.DEV && import.meta.env.VITE_MOCK === '1') {
+    const { mockFor } = await import('./devFixtures');
+    const mocked = mockFor(path);
+    if (mocked) {
+      await new Promise((r) => setTimeout(r, 60));
+      return mocked as ApiResult<T>;
+    }
+  }
+
   const url = `${API_BASE}${path}`;
   let res: Response;
   try {

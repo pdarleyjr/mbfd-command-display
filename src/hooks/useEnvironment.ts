@@ -8,8 +8,8 @@ import { applyRegime, detectRegime, isNoScrollRegime, type LayoutRegime } from '
 import { useUiStore } from '@/store/uiStore';
 import { prefersReducedMotion as mqReducedMotion, recommendedQuality } from '@/lib/webgl';
 
-export function useLayoutRegime(): { regime: LayoutRegime; isDisplay: boolean } {
-  const displayMode = useUiStore((s) => s.displayMode);
+/** Read-only viewport regime. Tracks resize/orientation; applies no side effects. */
+export function useViewportRegime(): LayoutRegime {
   const [regime, setRegime] = useState<LayoutRegime>(() =>
     typeof window === 'undefined' ? 'desktop' : detectRegime(window.innerWidth, window.innerHeight),
   );
@@ -28,6 +28,14 @@ export function useLayoutRegime(): { regime: LayoutRegime; isDisplay: boolean } 
       window.removeEventListener('orientationchange', recompute);
     };
   }, []);
+
+  return regime;
+}
+
+/** Owns the regime side effect: writes data-regime / data-display / --type-scale on <html>. */
+export function useLayoutRegime(): { regime: LayoutRegime; isDisplay: boolean } {
+  const displayMode = useUiStore((s) => s.displayMode);
+  const regime = useViewportRegime();
 
   useEffect(() => {
     applyRegime(regime, displayMode);

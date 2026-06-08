@@ -9,6 +9,7 @@ import { StationSubmissionsPanel } from '@/components/station/StationSubmissions
 import { StationRunsPanel } from '@/components/station/StationRunsPanel';
 import { StationCameraPanel } from '@/components/station/StationCameraPanel';
 import { StationAiSummary } from '@/components/station/StationAiSummary';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { ChevronLeft } from '@/components/common/icons';
 import { useDisplaySnapshot, useStationDetail, useIncidents, useAiSnapshot } from '@/hooks/useDisplayData';
 import { territoryByNumber } from '@/data/stationTerritories';
@@ -71,18 +72,30 @@ export function StationView() {
       <main className="cg-main">
         <div className="cg-station">
           <StationHero className="cg-sarea-hero" detail={detail} stationNumber={number} />
-          <StationApparatusPanel className="cg-sarea-appr" apparatus={detail?.apparatus} />
-          <StationPersonnelPanel className="cg-sarea-ppl" stationId={stationId} />
-          <StationSubmissionsPanel className="cg-sarea-subs" stationId={stationId} />
-          <StationRunsPanel
-            className="cg-sarea-runs"
-            incidents={inc.data}
-            servedFrom={inc.servedFrom}
-            ageSeconds={inc.ageSeconds}
-            stationNumber={number}
-          />
-          <StationCameraPanel className="cg-sarea-cams" stationNumber={stationNum} />
-          <StationAiSummary className="cg-sarea-ai" ai={ai.data} stationNumber={number} stationName={territory.name} ageSeconds={ai.ageSeconds} />
+          <ErrorBoundary label="Apparatus" className="cg-sarea-appr">
+            <StationApparatusPanel className="h-full" apparatus={detail?.apparatus} />
+          </ErrorBoundary>
+          <ErrorBoundary label="Personnel" className="cg-sarea-ppl">
+            <StationPersonnelPanel className="h-full" stationId={stationId} />
+          </ErrorBoundary>
+          <ErrorBoundary label="Submissions" className="cg-sarea-subs">
+            <StationSubmissionsPanel className="h-full" stationId={stationId} />
+          </ErrorBoundary>
+          <ErrorBoundary label="Runs" className="cg-sarea-runs">
+            <StationRunsPanel
+              className="h-full"
+              incidents={inc.data}
+              servedFrom={inc.servedFrom}
+              ageSeconds={inc.ageSeconds}
+              stationNumber={number}
+            />
+          </ErrorBoundary>
+          <ErrorBoundary label="Cameras" className="cg-sarea-cams">
+            <StationCameraPanel className="h-full" stationNumber={stationNum} />
+          </ErrorBoundary>
+          <ErrorBoundary label="AI summary" className="cg-sarea-ai">
+            <StationAiSummary className="h-full" ai={ai.data} stationNumber={number} stationName={territory.name} ageSeconds={ai.ageSeconds} />
+          </ErrorBoundary>
         </div>
       </main>
 
