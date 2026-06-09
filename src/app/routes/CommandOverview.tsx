@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CommandShell } from '@/components/command/CommandShell';
 import { CommandStrip } from '@/components/command/CommandStrip';
@@ -11,7 +12,7 @@ import { RecentSubmissionsTicker } from '@/components/command/RecentSubmissionsT
 import { SourceHealthBar } from '@/components/command/SourceHealthBar';
 import { OperationsMap } from '@/components/command/OperationsMap';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { useDisplaySnapshot, useIncidents, useAiSnapshot } from '@/hooks/useDisplayData';
+import { useDisplaySnapshot, useIncidents, useAiSnapshot, useFrontlineInspectionStations } from '@/hooks/useDisplayData';
 import { useReducedMotion } from '@/hooks/useEnvironment';
 
 /** Overall Command View — all stations, spatial map, PulsePoint runs, ~4 live feeds, AI brief. */
@@ -26,25 +27,41 @@ export function CommandOverview() {
   const incidents = inc.data;
   const aiHttp = ai.query.data?.status;
   const aiStatus = aiHttp === 202 ? 'generating' : (ai.data?.status ?? (ai.data ? 'fresh' : undefined));
+  const inspectionStations = useFrontlineInspectionStations(snapshot?.stations);
+  const displaySnapshot = useMemo(() => {
+    if (!snapshot) return undefined;
+    const readinessValues = inspectionStations.map((station) => station.readiness.percent).filter((value) => Number.isFinite(value));
+    const readinessPercent = readinessValues.length > 0
+      ? Math.round(readinessValues.reduce((sum, value) => sum + value, 0) / readinessValues.length)
+      : snapshot.overview.readiness_percent;
+    return {
+      ...snapshot,
+      stations: inspectionStations,
+      overview: {
+        ...snapshot.overview,
+        readiness_percent: readinessPercent,
+      },
+    };
+  }, [snapshot, inspectionStations]);
 
   const selectStation = (num: string) => navigate(`/stations/${num}`);
 
   return (
     <CommandShell>
-      <CommandStrip snapshot={snapshot} incidents={incidents} ai={ai.data} aiAgeSeconds={ai.ageSeconds} />
+      <CommandStrip snapshot={displaySnapshot} incidents={incidents} ai={ai.data} aiAgeSeconds={ai.ageSeconds} />
 
       <main className="cg-main">
         <div className="cg-overview">
-          <WatchStatusStrip className="cg-area-status" snapshot={snapshot} incidents={incidents} servedFrom={snap.servedFrom} ageSeconds={snap.ageSeconds} />
+          <WatchStatusStrip className="cg-area-status" snapshot={displaySnapshot} incidents={incidents} servedFrom={snap.servedFrom} ageSeconds={snap.ageSeconds} />
 
           <ActiveRunsPanel className="cg-area-runs" data={incidents} servedFrom={inc.servedFrom} ageSeconds={inc.ageSeconds} />
 
-          <StationReadinessGrid className="cg-area-grid" stations={snapshot?.stations} onSelect={selectStation} />
+          <StationReadinessGrid className="cg-area-grid" stations={displaySnapshot?.stations} onSelect={selectStation} />
 
           <ErrorBoundary label="Operations map">
             <OperationsMap
               className="cg-area-map"
-              stations={snapshot?.stations ?? []}
+              stations={displaySnapshot?.stations ?? []}
               incidents={incidents?.active ?? []}
               selectedStationNumber={null}
               onSelectStation={selectStation}
@@ -52,25 +69,25 @@ export function CommandOverview() {
             />
           </ErrorBoundary>
 
-          <AiOperationalBrief className="cg-area-ai" ai={ai.data} status={aiStatus} ageSeconds={ai.ageSeconds} snapshot={snapshot} />
+          <AiOperationalBrief className="cg-area-ai" ai={ai.data} status={aiStatus} ageSeconds={ai.ageSeconds} snapshot={displaySnapshot} />
 
           <LiveCameraNetwork className="cg-area-cams" />
 
           <AttentionQueuePanel
             className="cg-area-attention"
-            defects={snapshot?.defects?.items}
-            totalOpen={snapshot?.defects?.total_open}
-            criticalMissing={snapshot?.defects?.critical_missing}
-            requests={snapshot?.requests}
-            inventory={snapshot?.inventory_exceptions}
+            defects={displaySnapshot?.defects?.items}
+            totalOpen={displaySnapshot?.defects?.total_open}
+            criticalMissing={displaySnapshot?.defects?.critical_missing}
+            requests={displaySnapshot?.requests}
+            inventory={displaySnapshot?.inventory_exceptions}
           />
         </div>
       </main>
 
-      <RecentSubmissionsTicker snapshot={snapshot} reducedMotion={reducedMotion} />
+      <RecentSubmissionsTicker snapshot={displaySnapshot} reducedMotion={reducedMotion} />
 
       <SourceHealthBar
-        snapshot={snapshot}
+        snapshot={displaySnapshot}
         servedFrom={snap.servedFrom}
         ageSeconds={snap.ageSeconds}
         aiAvailable={aiStatus !== 'unavailable' && aiStatus !== undefined}

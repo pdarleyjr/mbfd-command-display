@@ -14,7 +14,7 @@ interface Props {
 
 const ORDER = ['1', '2', '3', '4', '6'];
 
-/** All-station readiness grid. Always shows every station, ordered 1·2·3·4·6. */
+/** All-station frontline vehicle inspection grid. Always shows every station, ordered 1·2·3·4·6. */
 export function StationReadinessGrid({ stations, onSelect, className, columnsClassName }: Props) {
   const sorted = [...(stations ?? [])].sort(
     (a, b) => orderIndex(a.number) - orderIndex(b.number),
@@ -22,14 +22,14 @@ export function StationReadinessGrid({ stations, onSelect, className, columnsCla
 
   return (
     <GlassPanel
-      label="Station Readiness"
+      label="Vehicle Inspection Completion"
       icon={<Grid size={15} />}
       className={className}
       bodyClassName="min-h-0"
       right={
         sorted.length > 0 ? (
           <span className="text-[11px] uppercase tracking-wider text-faint">
-            <span className="tnum text-ready">{sorted.filter((s) => s.readiness?.status === 'READY').length}</span> ready ·{' '}
+            <span className="tnum text-ready">{sorted.filter((s) => s.readiness?.status === 'READY').length}</span> complete ·{' '}
             <span className="tnum">{sorted.length}</span> stations
           </span>
         ) : undefined

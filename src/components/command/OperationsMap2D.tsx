@@ -134,7 +134,7 @@ export function OperationsMap2D({ stations, incidents, selectedStationNumber, on
             pin.selected && 'ring-2 ring-[color:var(--c-interactive)] ring-offset-2 ring-offset-[color:var(--c-bg)]',
           )}
           style={{ left: `${(pin.x / W) * 100}%`, top: `${(pin.y / H) * 100}%`, borderColor: pin.color } as CSSProperties}
-          aria-label={`Open ${pin.station.name} command view. Readiness ${pin.station.readiness?.percent ?? 'unknown'} percent, ${pin.visual.label}.`}
+          aria-label={`Open ${pin.station.name} command view. Frontline vehicle inspections ${pin.station.readiness?.percent ?? 'unknown'} percent complete.`}
           aria-current={pin.selected ? 'location' : undefined}
         >
           {pin.marine ? 'M' : pin.station.number}

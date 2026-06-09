@@ -125,8 +125,8 @@ function groundedSummary(s: DisplayOverview | undefined): string | null {
   const parts: string[] = [];
   parts.push(
     ready === total
-      ? `All ${total} stations are at readiness baseline`
-      : `${ready} of ${total} stations at readiness baseline; ${below} below`,
+      ? `All ${total} stations have completed frontline vehicle inspections`
+      : `${ready} of ${total} stations have completed frontline vehicle inspections; ${below} pending`,
   );
   parts.push(oos > 0 ? `${oos} apparatus out of service` : 'all apparatus in service');
   if (openDef > 0) parts.push(`${openDef} open defect${openDef === 1 ? '' : 's'}${crit > 0 ? ` (${crit} critical)` : ''}`);

@@ -16,6 +16,7 @@ import type { ApiResult } from './apiClient';
 export const MOCK_ENABLED: boolean = import.meta.env.DEV && import.meta.env.VITE_MOCK === '1';
 
 const nowIso = () => new Date().toISOString();
+const yesterdayIso = () => new Date(Date.now() - 86_400_000).toISOString();
 
 function ok<T>(data: T): ApiResult<T> {
   return { data, servedFrom: 'origin', snapshotAgeSeconds: 4, status: 200 };
@@ -53,6 +54,22 @@ const STATIONS = [
     readiness_reasons: ['No apparatus or recent inspections recorded'],
   },
 ];
+
+const FRONTLINE_BY_STATION: Record<number, string[]> = {
+  1: ['L1', 'E1', 'R1', 'R11'],
+  2: ['E2', 'R2', 'R22'],
+  3: ['L3', 'E3', 'R3'],
+  4: ['E4', 'R4', 'R44'],
+  6: ['FB6'],
+};
+
+const CHECKED_TODAY_BY_STATION: Record<number, string[]> = {
+  1: ['L1', 'E1'],
+  2: ['E2', 'R2', 'R22'],
+  3: [],
+  4: ['E4'],
+  6: [],
+};
 
 const DEFECTS = [
   { unit: 'Rescue 4', item: 'Pedi Backboard', status: 'Missing', reported_date: nowIso(), days_open: 0 },
@@ -109,10 +126,10 @@ const INCIDENTS = {
 const AI = {
   mode: 'descriptive' as const,
   briefing:
-    'All five stations are reporting below their readiness baseline, driven primarily by the absence of any logged apparatus checkouts so far today. Station 4 carries the highest open-defect load (8) and the lowest readiness (30%). Station 2 has one engine out of service. Station 6 (Marine) has no apparatus or recent inspections recorded, so its readiness is unknown. Three incidents are active across the mid- and north-beach territories.',
+    'Frontline vehicle inspection completion is mixed across the watch desk. Station 2 has completed all assigned frontline vehicle checks. Station 1 is partially complete, Station 4 has one frontline vehicle checked, and Stations 3 and 6 have no completed frontline vehicle inspections yet. Three incidents are active across the mid- and north-beach territories.',
   station_summaries: STATIONS.map((s) => ({
     station: s.name,
-    summary: `${s.in_service}/${s.apparatus_count} in service, ${s.open_defects} open defect(s); readiness ${s.readiness_percent}% (${s.readiness_status}).`,
+    summary: `${s.in_service}/${s.apparatus_count} in service, ${s.open_defects} open defect(s); frontline vehicle inspections are tracked against the station assignment map.`,
   })),
   active_run_summary: 'Three active incidents: a medical at 4101 Pine Tree Dr, a structure fire at 1250 Alton Rd, and a traffic collision at 7100 Collins Ave.',
   camera_source_summary: 'Four territory cameras are streaming; the marine telemetry tile is reporting current buoy data.',
@@ -125,24 +142,42 @@ const AI = {
 
 function detailFor(id: number) {
   const s = STATIONS.find((x) => x.id === id) ?? STATIONS[0];
-  const apparatus = Array.from({ length: s.apparatus_count }).map((_, i) => ({
+  const required = FRONTLINE_BY_STATION[id] ?? [];
+  const checked = new Set(CHECKED_TODAY_BY_STATION[id] ?? []);
+  const apparatus = required.map((unit, i) => ({
     id: id * 100 + i,
-    unit_id: `${s.number}-${i + 1}`,
-    designation: `${['Engine', 'Rescue', 'Truck', 'Brush', 'Marine'][i % 5]} ${s.number}`,
-    type: ['Engine', 'Rescue', 'Truck'][i % 3],
+    unit_id: unit,
+    designation: designationForUnit(unit),
+    type: typeForUnit(unit),
     status: i === 0 && s.out_of_service > 0 ? 'Out of Service' : 'In Service',
     pm_health: { status: (['green', 'yellow', 'red'] as const)[i % 3], hours_since_pm: 120 + i * 30, overdue: i % 3 === 2, interval_hours: 720 },
     open_defects_count: i < s.open_defects ? 1 : 0,
-    last_inspection_at: nowIso(),
+    last_inspection_at: checked.has(unit) ? nowIso() : yesterdayIso(),
   }));
   return {
     metadata: { generated_at: nowIso(), cache_ttl_seconds: 300, environment: 'mock' },
     station: { id: s.id, number: s.number, name: s.name, address: `${100 + id} Example Ave, Miami Beach, FL`, latitude: null, longitude: null },
     readiness: { percent: s.readiness_percent, status: s.readiness_status, reasons: s.readiness_reasons },
     apparatus,
-    counts: { inspections_today: 0, station_inspections_30d: 12, equipment_requests: id === 4 ? 1 : 0, big_ticket: 0, open_defects: s.open_defects, supply_requests: 0 },
+    counts: { inspections_today: checked.size, station_inspections_30d: 12, equipment_requests: id === 4 ? 1 : 0, big_ticket: 0, open_defects: s.open_defects, supply_requests: id === 3 ? 1 : 0 },
     defects: DEFECTS.filter((d) => d.unit?.includes(s.number)).slice(0, s.open_defects),
   };
+}
+
+function designationForUnit(unit: string): string {
+  if (unit.startsWith('L')) return `Ladder ${unit.slice(1)}`;
+  if (unit.startsWith('E')) return `Engine ${unit.slice(1)}`;
+  if (unit.startsWith('R')) return `Rescue ${unit.slice(1)}`;
+  if (unit.startsWith('FB')) return `Fire Boat ${unit.slice(2)}`;
+  return unit;
+}
+
+function typeForUnit(unit: string): string {
+  if (unit.startsWith('L')) return 'Ladder';
+  if (unit.startsWith('E')) return 'Engine';
+  if (unit.startsWith('R')) return 'Rescue';
+  if (unit.startsWith('FB')) return 'Fire Boat';
+  return 'Apparatus';
 }
 
 const RANKS = ['Captain', 'Lieutenant', 'Driver Engineer', 'Firefighter', 'Firefighter/Paramedic'];
@@ -162,6 +197,7 @@ function submissionsFor(id: number) {
       { id: id * 7 + 1, kind: 'apparatus_inspection' as const, label: `Engine ${id} morning check`, status: 'complete', at: nowIso() },
       { id: id * 7 + 2, kind: 'station_inspection' as const, label: 'Daily station inspection', status: 'pending_review', at: nowIso() },
       { id: id * 7 + 3, kind: 'supply_request' as const, label: 'Medical supply restock', status: 'submitted', at: nowIso() },
+      { id: id * 7 + 4, kind: 'big_ticket' as const, label: 'Facility maintenance request', status: 'submitted', at: nowIso() },
     ],
   };
 }

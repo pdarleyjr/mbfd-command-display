@@ -45,7 +45,7 @@ export function StationImage({
       }}
     >
       {asset && pngOrWebp && (
-        <picture>
+        <picture className="absolute inset-0 block h-full w-full">
           {formats?.avif && <source srcSet={formats.avif} type="image/avif" />}
           {formats?.webp && <source srcSet={formats.webp} type="image/webp" />}
           <img
@@ -55,7 +55,7 @@ export function StationImage({
             decoding="async"
             onLoad={() => setLoaded(true)}
             className={clsx(
-              'h-full w-full object-cover transition-opacity duration-500',
+              'absolute inset-0 h-full w-full object-cover transition-opacity duration-500',
               loaded ? 'opacity-100' : 'opacity-0',
               backdrop && 'scale-105 blur-[2px] saturate-[0.7] brightness-[0.55]',
               imgClassName,

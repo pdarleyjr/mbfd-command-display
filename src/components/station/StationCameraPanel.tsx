@@ -4,9 +4,10 @@ import { Camera } from '@/components/common/icons';
 import { CameraTile } from '@/components/command/CameraTile';
 import { camerasForStation } from '@/data/stationCameraCatalog';
 
-/** Station-specific live feeds (territory + adjacent context + marine telemetry). */
+/** Station-specific live feeds. Out-of-city context/news feeds are intentionally filtered out. */
 export function StationCameraPanel({ stationNumber, className }: { stationNumber: number; className?: string }) {
   const cameras = camerasForStation(stationNumber);
+  const visibleCameras = cameras.slice(0, 6);
   const hasContextOnly = cameras.length > 0 && cameras.every((c) => c.contextOnly);
 
   return (
@@ -15,7 +16,7 @@ export function StationCameraPanel({ stationNumber, className }: { stationNumber
       icon={<Camera size={15} />}
       className={className}
       bodyClassName="min-h-0"
-      right={<span className="text-[11px] uppercase tracking-wider text-faint"><span className="tnum">{cameras.length}</span> feeds</span>}
+      right={<span className="text-[11px] uppercase tracking-wider text-faint"><span className="tnum">{visibleCameras.length}</span> feeds</span>}
     >
       {cameras.length === 0 ? (
         <EmptyState
@@ -31,7 +32,7 @@ export function StationCameraPanel({ stationNumber, className }: { stationNumber
             </p>
           )}
           <div className="cg-scroll-y grid min-h-0 flex-1 auto-rows-min grid-cols-2 content-start gap-2 xl:grid-cols-3">
-            {cameras.slice(0, 6).map((cam) => (
+            {visibleCameras.map((cam) => (
               <CameraTile key={cam.id} camera={cam} allowRefresh className="min-h-0" />
             ))}
           </div>

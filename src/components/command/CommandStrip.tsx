@@ -69,7 +69,7 @@ export function CommandStrip({
 
         <div className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-1.5">
           <Stat icon={<Activity size={14} />} label="Active runs" value={activeRuns ?? 0} tone={activeRuns ? 'ember' : 'mute'} />
-          <Stat icon={<Grid size={14} />} label="Stations ready" value={`${stationsReady}/${stationsTotal || '—'}`} tone={stationsReady === stationsTotal && stationsTotal > 0 ? 'ready' : 'attention'} />
+          <Stat icon={<Grid size={14} />} label="Inspections" value={`${stationsReady}/${stationsTotal || '—'}`} tone={stationsReady === stationsTotal && stationsTotal > 0 ? 'ready' : 'attention'} />
           <Stat icon={<Truck size={14} />} label="Apparatus OOS" value={o?.apparatus_status?.out_of_service ?? 0} tone={o?.apparatus_status?.out_of_service ? 'critical' : 'ready'} />
           <Stat icon={<Boxes size={14} />} label="Open requests" value={openRequests} tone={openRequests ? 'attention' : 'mute'} />
           <Stat icon={<Cpu size={14} />} label="AI brief" value={ai ? formatAge(aiAgeSeconds ?? null) : '—'} tone="info" />

@@ -11,7 +11,7 @@ interface Props {
 }
 
 /**
- * Station readiness ROW: status left-rule · identity · glance stats · readiness % · bar.
+ * Station readiness ROW: status left-rule · identity · glance stats · vehicle-inspection % · bar.
  * A row (not an image card) so the station name never truncates and there is no blank
  * photo bar. The whole row is the drill-down control.
  */
@@ -26,7 +26,7 @@ export function StationCard({ station, onSelect, className }: Props) {
     <button
       type="button"
       onClick={() => onSelect(station.number)}
-      aria-label={`Open ${station.name} command view — readiness ${percent ?? 'unknown'}`}
+      aria-label={`Open ${station.name} command view — frontline vehicle inspections ${percent ?? 'unknown'} percent complete`}
       className={clsx(
         'cg-reset group flex flex-col gap-2 rounded-lg border border-[color:var(--c-hairline)] bg-[color:var(--c-surface-2)] px-3 py-2.5 transition-colors hover:border-[color:var(--c-interactive)] hover:bg-[color:var(--c-surface-3)]',
         className,
@@ -81,7 +81,7 @@ export function StationCard({ station, onSelect, className }: Props) {
             {percent != null && <span className="text-[0.5em] align-top text-mute">%</span>}
           </div>
           <div className="text-[10px] font-semibold uppercase tracking-wide" style={{ color }}>
-            {vis.label}
+            {station.readiness?.metric === 'frontline_vehicle_inspections' ? 'Inspected' : vis.label}
           </div>
         </div>
       </div>

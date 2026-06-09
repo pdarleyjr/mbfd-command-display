@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CommandShell } from '@/components/command/CommandShell';
 import { CommandStrip } from '@/components/command/CommandStrip';
@@ -15,7 +16,8 @@ import { ChevronLeft } from '@/components/common/icons';
 import { useDisplaySnapshot, useStationDetail, useIncidents, useAiSnapshot } from '@/hooks/useDisplayData';
 import { stationIdForNumber, territoryByNumber } from '@/data/stationTerritories';
 import { useReducedMotion } from '@/hooks/useEnvironment';
-import type { DisplayStationDetail } from '@/types/display';
+import { computeFrontlineInspectionReadiness } from '@/lib/frontlineInspections';
+import type { DisplayStationDetail, DisplayStationSummary } from '@/types/display';
 
 /** Station Command View — independent per-station readiness, apparatus, personnel, cameras, runs, AI. */
 export function StationView() {
@@ -30,19 +32,47 @@ export function StationView() {
   const summary = snap.data?.stations?.find((s) => s.number === number);
   const stationId = summary?.id ?? stationIdForNumber(number);
   const detailRes = useStationDetail(stationId);
-  const detail = detailRes.data ?? (summary ? summaryToDetail(summary) : undefined);
+  const detail = useMemo(() => {
+    const base = detailRes.data ?? (summary ? summaryToDetail(summary) : undefined);
+    if (!base) return undefined;
+    const readiness = computeFrontlineInspectionReadiness(number, base.apparatus);
+    return {
+      ...base,
+      readiness,
+      counts: {
+        ...base.counts,
+        inspections_today: readiness.completed ?? base.counts.inspections_today,
+      },
+    };
+  }, [detailRes.data, number, summary]);
   const stationNum = Number(number);
 
+  const mapStations = useMemo(
+    () => buildStationMapSummaries(snap.data?.stations, summary, detail, number),
+    [detail, number, snap.data?.stations, summary],
+  );
+
   const back = (
-    <button
-      type="button"
-      onClick={() => navigate('/')}
-      className="inline-flex items-center gap-1 rounded-md border border-[color:var(--c-hairline)] px-2.5 py-1.5 text-[12px] font-semibold text-mute transition-colors hover:text-ink"
-      title="Back to overview"
-      aria-label="Back to Overview"
-    >
-      <ChevronLeft size={16} /> Back to Overview
-    </button>
+    <div className="flex flex-wrap items-center gap-1.5">
+      <button
+        type="button"
+        onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+        className="inline-flex items-center gap-1 rounded-md border border-[color:var(--c-hairline)] px-2.5 py-1.5 text-[12px] font-semibold text-mute transition-colors hover:text-ink"
+        title="Return to the previous screen"
+        aria-label="Back to Previous Screen"
+      >
+        <ChevronLeft size={16} /> Previous
+      </button>
+      <button
+        type="button"
+        onClick={() => navigate('/')}
+        className="inline-flex items-center gap-1 rounded-md border border-[color:var(--c-hairline)] px-2.5 py-1.5 text-[12px] font-semibold text-mute transition-colors hover:text-ink"
+        title="Back to overview"
+        aria-label="Back to Overview"
+      >
+        Overview
+      </button>
+    </div>
   );
 
   const breadcrumb = territory ? (
@@ -87,7 +117,7 @@ export function StationView() {
         <div className="cg-station">
           <StationHero className="cg-sarea-hero" detail={detail} stationNumber={number} />
           <ErrorBoundary label="Apparatus" className="cg-sarea-appr">
-            <StationApparatusPanel className="h-full" apparatus={detail?.apparatus} />
+            <StationApparatusPanel className="h-full" apparatus={detail?.apparatus} stationNumber={number} />
           </ErrorBoundary>
           <ErrorBoundary label="Personnel" className="cg-sarea-ppl">
             <StationPersonnelPanel className="h-full" stationId={stationId} />
@@ -107,7 +137,7 @@ export function StationView() {
           <ErrorBoundary label="Station map" className="cg-sarea-map">
             <OperationsMap
               className="h-full"
-              stations={snap.data?.stations ?? (summary ? [summary] : [])}
+              stations={mapStations}
               incidents={inc.data?.active ?? []}
               selectedStationNumber={number}
               onSelectStation={(stationNumber) => navigate(`/stations/${stationNumber}`)}
@@ -145,4 +175,32 @@ function summaryToDetail(s: NonNullable<ReturnType<typeof useDisplaySnapshot>['d
     },
     defects: [],
   };
+}
+
+function buildStationMapSummaries(
+  stations: DisplayStationSummary[] | undefined,
+  summary: DisplayStationSummary | undefined,
+  detail: DisplayStationDetail | undefined,
+  stationNumber: string,
+): DisplayStationSummary[] {
+  const readiness = detail?.readiness ?? summary?.readiness ?? computeFrontlineInspectionReadiness(stationNumber, detail?.apparatus ?? []);
+  const baseStation: DisplayStationSummary = summary ?? {
+    id: detail?.station.id ?? stationIdForNumber(stationNumber) ?? Number(stationNumber),
+    number: stationNumber,
+    name: detail?.station.name ?? territoryByNumber(stationNumber)?.name ?? `Station ${stationNumber}`,
+    latitude: detail?.station.latitude ?? null,
+    longitude: detail?.station.longitude ?? null,
+    apparatus_count: detail?.apparatus.length ?? 0,
+    in_service: 0,
+    out_of_service: 0,
+    maintenance: 0,
+    open_defects: detail?.counts.open_defects ?? 0,
+    readiness,
+  };
+
+  if (!stations || stations.length === 0) return [{ ...baseStation, readiness }];
+
+  const found = stations.some((station) => station.number === stationNumber);
+  const updated = stations.map((station) => (station.number === stationNumber ? { ...station, readiness } : station));
+  return found ? updated : [...updated, { ...baseStation, readiness }];
 }

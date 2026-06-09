@@ -12,8 +12,8 @@
  *  • hls      → news channel <newsKey> via CF Function proxy, or directHls when public.
  *  • telemetry→ keyless JSON (marine / tides), rendered as a data card, not video.
  *
- * Honest gaps: Station 3 (41st–64th) has NO in-territory feed; Station 4 (North Beach)
- * has only north-adjacent (Sunny Isles) context cams. These are surfaced, not hidden.
+ * Honest gaps: Station 3 (41st–64th) and Station 4 (North Beach) currently have no verified
+ * Miami Beach-origin live feed. Out-of-city context feeds are intentionally excluded.
  */
 
 export type CamSourceType = 'hls' | 'iframe' | 'image' | 'youtube' | 'external' | 'telemetry';
@@ -181,74 +181,13 @@ export const stationCameraCatalog: StationCamera[] = [
   // GAP: no verified internal feed inside this territory. Surfaced in the UI, not faked.
 
   // ── Station 4 — 65th St → 87th Ct (North Beach) ───────────────────────────
-  {
-    id: 'oz-newport-pier-north',
-    displayName: 'Newport Pier · North',
-    stationIds: [4],
-    territoryLabel: 'North-adjacent (Sunny Isles) — context',
-    sourceProvider: 'Ozolio',
-    sourceType: 'iframe',
-    priority: 1,
-    oid: 'EMB_DCCO00000F84',
-    posterUrl: ozPoster('EMB_DCCO00000F84'),
-    wrapperUrl: ozWrap('EMB_DCCO00000F84', 'Newport Pier · North'),
-    refreshSeconds: 90,
-    verified: true,
-    contextOnly: true,
-    notes: 'North of 87th Ct (Sunny Isles); adjacency context only.',
-  },
-  {
-    id: 'oz-newport-fishing-pier',
-    displayName: 'Newport Fishing Pier',
-    stationIds: [4],
-    territoryLabel: 'North-adjacent (Sunny Isles) — context',
-    sourceProvider: 'Ozolio',
-    sourceType: 'iframe',
-    priority: 2,
-    oid: 'EMB_BKDD00000F89',
-    posterUrl: ozPoster('EMB_BKDD00000F89'),
-    wrapperUrl: ozWrap('EMB_BKDD00000F89', 'Newport Fishing Pier'),
-    refreshSeconds: 90,
-    verified: true,
-    contextOnly: true,
-    notes: 'North-adjacent context only.',
-  },
-  {
-    id: 'yt-acqualina',
-    displayName: 'Acqualina Beach',
-    stationIds: [4],
-    territoryLabel: 'North-adjacent (Sunny Isles) — context',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 3,
-    youtubeId: 'sI7oCUe1dmo',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    contextOnly: true,
-    notes: 'YouTube live; north-adjacent context only.',
-  },
-  {
-    id: 'yt-sunny-isles',
-    displayName: 'Sunny Isles Beach',
-    stationIds: [4],
-    territoryLabel: 'North-adjacent (Sunny Isles) — context',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 4,
-    youtubeId: 'T5U_EzpjCJk',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    contextOnly: true,
-    notes: 'YouTube live; north-adjacent context only.',
-  },
+  // GAP: no verified Miami Beach-origin feed. Newport / Sunny Isles feeds removed by policy.
 
   // ── Station 6 — MARINE (MacArthur, PortMiami, Gov Cut, Biscayne Bay) ───────
   {
     id: 'oz-biscayne-portmiami',
     displayName: 'Biscayne Bay & PortMiami',
-    stationIds: [6, 1],
+    stationIds: [6],
     territoryLabel: 'Biscayne Bay / PortMiami / Gov Cut',
     sourceProvider: 'Ozolio',
     sourceType: 'iframe',
@@ -258,12 +197,12 @@ export const stationCameraCatalog: StationCamera[] = [
     wrapperUrl: ozWrap('EMB_FDVN00000417', 'Biscayne Bay & PortMiami'),
     refreshSeconds: 90,
     verified: true,
-    notes: 'PRIMARY marine cam. Shared with Station 1 (Gov Cut).',
+    notes: 'PRIMARY marine cam for FB6 / Biscayne Bay context.',
   },
   {
     id: 'yt-macarthur-skyline',
     displayName: 'MacArthur Causeway & Skyline',
-    stationIds: [6, 1],
+    stationIds: [6],
     territoryLabel: 'MacArthur Causeway / Downtown skyline',
     sourceProvider: 'YouTube',
     sourceType: 'youtube',
@@ -272,35 +211,7 @@ export const stationCameraCatalog: StationCamera[] = [
     posterUrl: null,
     refreshSeconds: null,
     verified: true,
-    notes: 'YouTube live. Replaces dropped FDOT MacArthur snapshot.',
-  },
-  {
-    id: 'yt-portmiami-cruise',
-    displayName: 'PortMiami Cruise Ships',
-    stationIds: [6],
-    territoryLabel: 'PortMiami',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 3,
-    youtubeId: 'PeYZZinH1wI',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    notes: 'YouTube live.',
-  },
-  {
-    id: 'yt-biscayne-north-waterfront',
-    displayName: 'Biscayne Bay North Waterfront',
-    stationIds: [6],
-    territoryLabel: 'Biscayne Bay (north)',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 4,
-    youtubeId: '5YCajRjvWCg',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    notes: 'YouTube live.',
+    notes: 'YouTube live. Marine/causeway context only.',
   },
   {
     id: 'tel-marine-open-meteo',
@@ -333,7 +244,7 @@ export const stationCameraCatalog: StationCamera[] = [
     notes: 'Keyless JSON. Hi/lo tide predictions. Not a camera.',
   },
 
-  // ── Department-wide situational news (HLS) — not station-mapped ────────────
+  // ── Miami Beach city channel (HLS) — not station-mapped ───────────────────
   {
     id: 'news-mbtv',
     displayName: 'MBTV · Miami Beach',
@@ -350,37 +261,6 @@ export const stationCameraCatalog: StationCamera[] = [
     verified: true,
     notes: 'City gov channel — leads the news folder.',
   },
-  {
-    id: 'news-cbs',
-    displayName: 'CBS News Miami',
-    stationIds: [1, 2, 3, 4, 6],
-    territoryLabel: 'South Florida news',
-    sourceProvider: 'CBS',
-    sourceType: 'hls',
-    priority: 2,
-    newsKey: 'cbs',
-    directHls: 'https://cbsn-mia.cbsnstream.cbsnews.com/out/v1/ac174b7938264d24ae27e56f6584bca0/master.m3u8',
-    wrapperUrl: newsWrap('cbs', 'CBS News Miami'),
-    posterUrl: null,
-    refreshSeconds: 90,
-    verified: true,
-    notes: 'FAST/OTT feed.',
-  },
-  {
-    id: 'news-local10',
-    displayName: 'Local 10 · WPLG',
-    stationIds: [1, 2, 3, 4, 6],
-    territoryLabel: 'South Florida news',
-    sourceProvider: 'WPLG',
-    sourceType: 'hls',
-    priority: 3,
-    newsKey: 'local10',
-    wrapperUrl: newsWrap('local10', 'Local 10 · WPLG'),
-    posterUrl: null,
-    refreshSeconds: 90,
-    verified: true,
-    notes: 'Master path rotates — resolved by the media-control proxy at play time.',
-  },
 ];
 
 /** Cameras whose territory includes the given station number (excludes context-only by default). */
@@ -394,13 +274,15 @@ export function camerasForStation(stationNumber: number, includeContext = true):
 /** A curated ~4-up set for the overview: one strong feed per territory, video first. */
 export function overviewCameras(count = 4): StationCamera[] {
   const picks: StationCamera[] = [];
-  const wantOrder = [1, 6, 2, 4]; // South Beach, Marine, Mid-Beach, North Beach
+  const wantOrder = [1, 2, 6]; // South Beach, Mid-Beach, Marine. No out-of-city fillers.
   for (const n of wantOrder) {
     const cam = stationCameraCatalog
       .filter((c) => c.stationIds.includes(n) && c.sourceType !== 'telemetry' && c.verified)
       .sort((a, b) => a.priority - b.priority)[0];
     if (cam && !picks.find((p) => p.id === cam.id)) picks.push(cam);
   }
+  const mbtv = stationCameraCatalog.find((c) => c.id === 'news-mbtv');
+  if (mbtv && !picks.find((p) => p.id === mbtv.id)) picks.push(mbtv);
   return picks.slice(0, count);
 }
 

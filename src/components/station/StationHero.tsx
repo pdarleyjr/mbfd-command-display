@@ -45,7 +45,7 @@ export function StationHero({ detail, stationNumber, className }: Props) {
                   {Number.isFinite(r?.percent) ? r?.percent : '—'}
                   <span className="text-2xl text-mute">%</span>
                 </div>
-                <div className="cg-label">Readiness</div>
+                <div className="cg-label">{r?.metric === 'frontline_vehicle_inspections' ? 'Vehicle inspections' : 'Readiness'}</div>
               </div>
             </div>
           </div>
@@ -63,7 +63,7 @@ export function StationHero({ detail, stationNumber, className }: Props) {
 
           {detail?.counts && (
             <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-3 text-sm sm:grid-cols-4">
-              <HeroCount label="Apparatus checks" value={detail.counts.inspections_today} />
+              <HeroCount label="Frontline checks" value={detail.counts.inspections_today} />
               <HeroCount label="Station insp. 30d" value={detail.counts.station_inspections_30d} />
               <HeroCount label="Open defects" value={detail.counts.open_defects} tone={detail.counts.open_defects > 0 ? 'attention' : 'ready'} />
               <HeroCount label="Equip. requests" value={detail.counts.equipment_requests + detail.counts.supply_requests + detail.counts.big_ticket} tone={detail.counts.equipment_requests + detail.counts.supply_requests + detail.counts.big_ticket > 0 ? 'attention' : 'ready'} />

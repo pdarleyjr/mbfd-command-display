@@ -38,6 +38,11 @@ export interface StationReadiness {
   percent: number;
   status: ReadinessStatus;
   reasons: string[];
+  metric?: 'readiness' | 'frontline_vehicle_inspections';
+  completed?: number;
+  required?: number;
+  required_units?: string[];
+  missing_units?: string[];
 }
 
 export interface DisplayStationSummary {

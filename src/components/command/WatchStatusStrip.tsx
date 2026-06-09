@@ -20,7 +20,7 @@ export function WatchStatusStrip({ snapshot, incidents, servedFrom, ageSeconds, 
   const oos = snapshot?.overview?.apparatus_status?.out_of_service ?? 0;
   const criticalMissing = snapshot?.defects?.critical_missing ?? 0;
   const attentionCount = exceptions.length + activeRuns + oos + criticalMissing;
-  const posture = stations.length === 0 ? 'Awaiting snapshot' : activeRuns > 0 ? 'Active incident posture' : attentionCount > 0 ? 'Readiness watch' : 'Steady state';
+  const posture = stations.length === 0 ? 'Awaiting snapshot' : activeRuns > 0 ? 'Active incident posture' : attentionCount > 0 ? 'Inspection watch' : 'Steady state';
 
   return (
     <GlassPanel
@@ -41,13 +41,13 @@ export function WatchStatusStrip({ snapshot, incidents, servedFrom, ageSeconds, 
               : stations.length === 0
                 ? 'Waiting for the first MBFDHub station snapshot.'
               : exceptions.length > 0
-                ? `${exceptions.length} station${exceptions.length === 1 ? '' : 's'} below readiness baseline.`
-                : 'All visible station indicators are at baseline.'}
+                ? `${exceptions.length} station${exceptions.length === 1 ? '' : 's'} below frontline inspection completion.`
+                : 'All frontline vehicle inspections are complete.'}
           </div>
         </div>
 
         <StatusMetric icon={<Activity size={16} />} label="Active runs" value={activeRuns} tone={activeRuns > 0 ? 'ember' : 'mute'} detail={activeRuns > 0 ? 'PulsePoint live' : 'Feed clear'} />
-        <StatusMetric icon={<Grid size={16} />} label="Stations ready" value={stations.length > 0 ? `${ready}/${stations.length}` : '—'} tone={ready === stations.length && stations.length > 0 ? 'ready' : 'attention'} detail={stations.length === 0 ? 'No snapshot yet' : exceptions.length > 0 ? `${exceptions.length} exception${exceptions.length === 1 ? '' : 's'}` : 'Baseline met'} />
+        <StatusMetric icon={<Grid size={16} />} label="Inspections complete" value={stations.length > 0 ? `${ready}/${stations.length}` : '—'} tone={ready === stations.length && stations.length > 0 ? 'ready' : 'attention'} detail={stations.length === 0 ? 'No snapshot yet' : exceptions.length > 0 ? `${exceptions.length} station${exceptions.length === 1 ? '' : 's'} pending` : 'All complete'} />
         <StatusMetric icon={<Truck size={16} />} label="Apparatus OOS" value={oos} tone={oos > 0 ? 'critical' : 'ready'} detail={oos > 0 ? 'Needs attention' : 'None reported'} />
         <StatusMetric icon={<AlertTriangle size={16} />} label="Critical items" value={criticalMissing} tone={criticalMissing > 0 ? 'critical' : 'mute'} detail={criticalMissing > 0 ? 'Missing/damaged' : 'No critical gaps'} />
       </div>

@@ -24,8 +24,9 @@ test('overview renders, station card navigation works, and back returns to overv
 
   await expect(page.getByRole('navigation', { name: 'Command display navigation' })).toBeVisible();
   await expect(page.getByText('Watch Desk Posture')).toBeVisible();
-  await expect(page.getByText('Station Readiness')).toBeVisible();
+  await expect(page.getByText('Vehicle Inspection Completion')).toBeVisible();
   await expect(page.getByText('Live Cameras')).toBeVisible();
+  await expect(page.locator('button[aria-label*="Station 1"][aria-label*="50 percent"]').first()).toBeVisible();
 
   await page.locator('button[aria-label^="Open Station 1"]').first().click();
   await expect(page).toHaveURL(/\/stations\/1$/);
@@ -43,6 +44,7 @@ test('canonical station routes render and legacy route redirects', async ({ page
     await page.goto(`/stations/${station}`);
     await expect(page.getByRole('heading', { name: new RegExp(`Station ${station}`, 'i') })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Back to Overview' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Back to Previous Screen' })).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText(`Station ${station}`);
   }
 

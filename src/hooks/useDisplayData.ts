@@ -4,10 +4,14 @@
  */
 
 import { usePersistentQuery } from './usePersistentQuery';
+import { useQueries } from '@tanstack/react-query';
+import { getJson } from '@/lib/apiClient';
+import { computeFrontlineInspectionReadiness } from '@/lib/frontlineInspections';
 import { normalizeOverview, normalizeStationDetail } from '@/lib/normalize';
 import type {
   AiSnapshot,
   DisplayOverview,
+  DisplayStationSummary,
   DisplayStationDetail,
   IncidentsResponse,
   PersonnelMember,
@@ -45,6 +49,37 @@ export function useStationDetail(stationId: number | null) {
     persistMaxAgeMs: 1000 * 60 * 60 * 3,
   });
   return { ...r, data: r.data ? normalizeStationDetail(r.data) : undefined };
+}
+
+export function useFrontlineInspectionStations(stations: DisplayStationSummary[] | undefined) {
+  const list = stations ?? [];
+  const queries = useQueries({
+    queries: list.map((station) => ({
+      queryKey: ['frontline-station-detail', station.id],
+      queryFn: async ({ signal }: { signal?: AbortSignal }) => {
+        const result = await getJson<DisplayStationDetail>(`/api/stations/${station.id}`, { signal });
+        return normalizeStationDetail(result.data);
+      },
+      enabled: station.id != null,
+      staleTime: 20_000,
+      refetchInterval: 30_000,
+      retry: 1,
+    })),
+  });
+
+  return list.map((station, index) => {
+    const detail = queries[index]?.data;
+    if (!detail?.apparatus) return station;
+    const apparatusCount = detail.apparatus.length;
+    const inService = detail.apparatus.filter((apparatus) => /in.?service|active/i.test(apparatus.status)).length;
+    return {
+      ...station,
+      apparatus_count: apparatusCount || station.apparatus_count,
+      in_service: apparatusCount ? inService : station.in_service,
+      out_of_service: apparatusCount ? Math.max(0, apparatusCount - inService) : station.out_of_service,
+      readiness: computeFrontlineInspectionReadiness(station.number, detail.apparatus),
+    };
+  });
 }
 
 export function useStationPersonnel(stationId: number | null) {

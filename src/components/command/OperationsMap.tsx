@@ -27,7 +27,7 @@ export function OperationsMap({
   className,
 }: OperationsMapProps) {
   return (
-    <section className={clsx('cg-panel cg-panel--lg relative overflow-hidden', className)}>
+    <section className={clsx('cg-panel cg-panel--lg relative min-h-[260px] overflow-hidden', className)}>
       <div className="absolute left-4 top-3 z-10 flex items-center gap-2 text-mute">
         <MapPin size={15} className="text-info" />
         <span className="cg-label">Operations Map — Miami Beach</span>
