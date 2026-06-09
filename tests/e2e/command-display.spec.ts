@@ -24,7 +24,7 @@ test('overview renders, station card navigation works, and back returns to overv
 
   await expect(page.getByRole('navigation', { name: 'Command display navigation' })).toBeVisible();
   await expect(page.getByText('Watch Desk Posture')).toBeVisible();
-  await expect(page.getByText('Vehicle Inspection Completion')).toBeVisible();
+  await expect(page.getByText('Vehicle Inspection Completion', { exact: true })).toBeVisible();
   await expect(page.getByText('Live Cameras')).toBeVisible();
   await expect(page.locator('button[aria-label*="Station 1"][aria-label*="50 percent"]').first()).toBeVisible();
 

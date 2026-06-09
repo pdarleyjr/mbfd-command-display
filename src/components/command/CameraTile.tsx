@@ -39,8 +39,8 @@ export function CameraTile({ camera, className, allowRefresh }: CameraTileProps)
 
   const [stage, setStage] = useState<Stage>(() => {
     if (resolved.kind === 'telemetry') return 'media';
-    if (resolved.kind === 'youtube') return 'media';
     if (resolved.kind === 'hls' && resolved.src) return 'media';
+    if (resolved.kind === 'iframe' && resolved.src) return 'iframe';
     if (resolved.iframeFallback) return 'iframe';
     if (resolved.poster) return 'poster';
     return 'dead';
@@ -74,11 +74,13 @@ export function CameraTile({ camera, className, allowRefresh }: CameraTileProps)
     setStage(
       resolved.kind === 'hls' && resolved.src
         ? 'media'
-        : resolved.kind === 'youtube'
-          ? 'media'
+        : resolved.kind === 'iframe' && resolved.src
+          ? 'iframe'
           : resolved.iframeFallback
             ? 'iframe'
-            : 'poster',
+            : resolved.poster
+              ? 'poster'
+              : 'dead',
     );
     setReloadKey((k) => k + 1);
   }
@@ -90,21 +92,6 @@ export function CameraTile({ camera, className, allowRefresh }: CameraTileProps)
   return (
     <figure className={clsx('cg-panel relative aspect-video min-h-0 overflow-hidden', className)}>
       {/* Media layer */}
-      {stage === 'media' && resolved.kind === 'youtube' && resolved.src && (
-        <iframe
-          key={reloadKey}
-          src={resolved.src}
-          title={camera.displayName}
-          className="absolute inset-0 h-full w-full border-0"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          referrerPolicy="strict-origin-when-cross-origin"
-          loading="lazy"
-          onLoad={() => {
-            setHealth('live');
-            report(camera.id, 'live');
-          }}
-        />
-      )}
       {stage === 'media' && resolved.kind === 'hls' && (
         <video
           key={reloadKey}
@@ -116,13 +103,12 @@ export function CameraTile({ camera, className, allowRefresh }: CameraTileProps)
           className="absolute inset-0 h-full w-full bg-[color:var(--c-surface-2)] object-cover"
         />
       )}
-      {stage === 'iframe' && resolved.iframeFallback && (
+      {stage === 'iframe' && (resolved.src || resolved.iframeFallback) && (
         <iframe
           key={`if-${reloadKey}`}
-          src={resolved.iframeFallback}
+          src={resolved.kind === 'iframe' ? (resolved.src ?? resolved.iframeFallback ?? undefined) : (resolved.iframeFallback ?? undefined)}
           title={camera.displayName}
           className="absolute inset-0 h-full w-full border-0"
-          allow="autoplay; encrypted-media"
           referrerPolicy="strict-origin-when-cross-origin"
           loading="lazy"
           onLoad={() => {

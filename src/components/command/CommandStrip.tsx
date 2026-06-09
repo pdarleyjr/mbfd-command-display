@@ -48,7 +48,7 @@ export function CommandStrip({
     (snapshot?.requests?.employee_equipment?.pending ?? 0);
 
   return (
-    <header className="cg-panel px-4 py-2.5">
+    <header className="cg-panel cg-command-strip px-4 py-2.5">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
         <div className="flex min-w-0 items-center gap-3">
           {leading}

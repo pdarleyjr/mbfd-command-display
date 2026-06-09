@@ -6,17 +6,15 @@
  * Only feeds confirmed live + embeddable are marked `verified: true`. NO cameras invented.
  *
  * Playback strategy (see cameraResolver.ts):
- *  • youtube  → youtube-nocookie.com/embed/<youtubeId> (embeddable anywhere)
- *  • ozolio   → resolve <oid> server-side (CF Function /api/cameras/ozolio) to an .m3u8,
- *               play natively with hls.js; poster + media-control wrapper as fallbacks.
- *  • hls      → news channel <newsKey> via CF Function proxy, or directHls when public.
+ *  • ozolio   → media-control wrapper iframe (no direct browser HLS/CORS noise)
+ *  • hls      → media-control wrapper iframe for MBTV (no direct browser HLS/CORS noise)
  *  • telemetry→ keyless JSON (marine / tides), rendered as a data card, not video.
  *
  * Honest gaps: Station 3 (41st–64th) and Station 4 (North Beach) currently have no verified
  * Miami Beach-origin live feed. Out-of-city context feeds are intentionally excluded.
  */
 
-export type CamSourceType = 'hls' | 'iframe' | 'image' | 'youtube' | 'external' | 'telemetry';
+export type CamSourceType = 'hls' | 'iframe' | 'image' | 'external' | 'telemetry';
 export type CamHealth = 'unknown' | 'live' | 'reconnecting' | 'stale' | 'offline';
 
 export interface StationCamera {
@@ -29,12 +27,8 @@ export interface StationCamera {
   priority: number;
   /** Ozolio embed object id (EMB_…), when sourceType === 'ozolio'/'iframe'. */
   oid?: string;
-  /** YouTube live video id, when sourceType === 'youtube'. */
-  youtubeId?: string;
   /** News channel key understood by the media-control HLS proxy. */
   newsKey?: string;
-  /** Public direct HLS master URL when one exists (fallback for news). */
-  directHls?: string;
   /** Telemetry JSON endpoint (marine/tides). */
   telemetryUrl?: string;
   /** media-control wrapper page (secondary playback path / iframe fallback). */
@@ -101,35 +95,6 @@ export const stationCameraCatalog: StationCamera[] = [
     verified: true,
     notes: '',
   },
-  {
-    id: 'yt-zeroeight-sb',
-    displayName: 'ZeroEight · South Beach',
-    stationIds: [1],
-    territoryLabel: 'Collins Ave / South Beach',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 4,
-    youtubeId: 'g5BS95j2rmM',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    notes: 'YouTube live.',
-  },
-  {
-    id: 'yt-ocean-drive-mb',
-    displayName: 'Ocean Drive · Miami Beach',
-    stationIds: [1],
-    territoryLabel: 'Ocean Drive',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 5,
-    youtubeId: 'lVkJlng3nSs',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    notes: 'YouTube live.',
-  },
-
   // ── Station 2 — 15th St → 41st St ─────────────────────────────────────────
   {
     id: 'oz-w-southbeach-21st',
@@ -200,20 +165,6 @@ export const stationCameraCatalog: StationCamera[] = [
     notes: 'PRIMARY marine cam for FB6 / Biscayne Bay context.',
   },
   {
-    id: 'yt-macarthur-skyline',
-    displayName: 'MacArthur Causeway & Skyline',
-    stationIds: [6],
-    territoryLabel: 'MacArthur Causeway / Downtown skyline',
-    sourceProvider: 'YouTube',
-    sourceType: 'youtube',
-    priority: 2,
-    youtubeId: '4UzQd1dVPlo',
-    posterUrl: null,
-    refreshSeconds: null,
-    verified: true,
-    notes: 'YouTube live. Marine/causeway context only.',
-  },
-  {
     id: 'tel-marine-open-meteo',
     displayName: 'Marine Conditions (wave / SST)',
     stationIds: [6],
@@ -249,12 +200,11 @@ export const stationCameraCatalog: StationCamera[] = [
     id: 'news-mbtv',
     displayName: 'MBTV · Miami Beach',
     stationIds: [1, 2, 3, 4, 6],
-    territoryLabel: 'City of Miami Beach gov channel',
+    territoryLabel: 'Miami Beach gov channel',
     sourceProvider: 'MBTV',
     sourceType: 'hls',
     priority: 1,
     newsKey: 'mbtv',
-    directHls: 'https://edge-f.swagit.com/live/miamibeachfl/live-1-a/playlist.m3u8',
     wrapperUrl: newsWrap('mbtv', 'MBTV · Miami Beach'),
     posterUrl: null,
     refreshSeconds: 90,
