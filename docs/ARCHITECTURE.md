@@ -149,9 +149,11 @@ shape, bay/ocean context, causeways, territory bands, station controls, and acti
 without external map tiles or GPU dependencies. Interactive station pins are native HTML buttons
 over the SVG, so keyboard and assistive-technology behavior remains predictable.
 
-No service worker or WebGL app shell is shipped. New deploys rely on Cloudflare Pages' hashed
-assets, `_headers` cache policy, and a best-effort legacy service-worker cleanup path in
-[`serviceWorkerCleanup`](../src/lib/serviceWorkerCleanup.ts).
+No app-shell service worker or WebGL layer is shipped. New deploys rely on Cloudflare Pages'
+hashed assets and `_headers` cache policy. A tiny emergency [`public/sw.js`](../public/sw.js)
+exists only to replace old Workbox registrations, delete stale caches, unregister itself, and
+reload clients onto the network version; [`serviceWorkerCleanup`](../src/lib/serviceWorkerCleanup.ts)
+also runs best-effort cleanup from the app shell.
 
 ## Design system
 
