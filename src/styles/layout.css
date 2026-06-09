@@ -102,10 +102,11 @@ html[data-regime='portrait'] {
   gap: var(--gap);
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
-    'map  map  map  map  map  map  map  runs runs runs runs runs'
-    'grid grid grid grid grid ai   ai   ai   ai   cams cams cams'
-    'issues issues issues issues issues issues req req req cams cams cams';
-  grid-template-rows: minmax(360px, 48vh) minmax(300px, auto) minmax(240px, auto);
+    'status status status status status status status status status status status status'
+    'runs runs runs runs grid grid grid grid cams cams cams cams'
+    'map map map map grid grid grid grid cams cams cams cams'
+    'attention attention attention attention attention ai ai ai ai ai ai ai';
+  grid-template-rows: minmax(150px, auto) minmax(300px, auto) minmax(300px, auto) minmax(260px, auto);
   height: 100%;
   min-height: 0;
   overflow-y: auto;
@@ -118,23 +119,23 @@ html[data-display='1'] .cg-overview {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: repeat(6, minmax(0, 1fr));
   grid-template-areas:
-    'map map map map map grid grid grid grid runs runs runs'
-    'map map map map map grid grid grid grid runs runs runs'
-    'map map map map map grid grid grid grid ai ai ai'
-    'map map map map map grid grid grid grid ai ai ai'
-    'cams cams cams cams cams grid grid grid grid ai ai ai'
-    'cams cams cams cams cams issues issues issues issues req req req';
+    'status status status status status status status status status status status status'
+    'runs runs runs grid grid grid grid grid cams cams cams cams'
+    'runs runs runs grid grid grid grid grid cams cams cams cams'
+    'map map map grid grid grid grid grid cams cams cams cams'
+    'map map map attention attention attention attention ai ai ai ai ai'
+    'map map map attention attention attention attention ai ai ai ai ai';
   overflow: hidden;
   padding-right: 0;
 }
 
+.cg-area-status { grid-area: status; min-height: 0; min-width: 0; }
 .cg-area-map { grid-area: map; min-height: 0; min-width: 0; }
 .cg-area-grid { grid-area: grid; min-height: 0; min-width: 0; }
 .cg-area-runs { grid-area: runs; min-height: 0; min-width: 0; }
 .cg-area-ai { grid-area: ai; min-height: 0; min-width: 0; }
 .cg-area-cams { grid-area: cams; min-height: 0; min-width: 0; }
-.cg-area-issues { grid-area: issues; min-height: 0; min-width: 0; }
-.cg-area-req { grid-area: req; min-height: 0; min-width: 0; }
+.cg-area-attention { grid-area: attention; min-height: 0; min-width: 0; }
 
 /* ── Narrow (small laptops / tablets): single scrolling column ── */
 @media (max-width: 1279px) {
@@ -142,12 +143,12 @@ html[data-display='1'] .cg-overview {
   html[data-display='1'] .cg-overview {
     grid-template-columns: 1fr;
     grid-template-rows: none;
-    grid-template-areas: 'map' 'grid' 'runs' 'ai' 'cams' 'issues' 'req';
-    grid-auto-rows: clamp(260px, 40vh, 420px);
+    grid-template-areas: 'status' 'runs' 'grid' 'map' 'cams' 'attention' 'ai';
+    grid-auto-rows: auto;
     overflow-y: auto;
     padding-right: 2px;
   }
-  .cg-area-map { height: clamp(300px, 48vh, 520px); }
+  .cg-area-map { min-height: clamp(300px, 48vh, 520px); }
 }
 
 /* ── Portrait monitors / tablets (wide enough for 2 columns): two columns, scrolls.
@@ -157,11 +158,11 @@ html[data-display='1'] .cg-overview {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: none;
     grid-template-areas:
+      'status status'
+      'runs grid'
       'map map'
-      'grid grid'
-      'runs ai'
       'cams cams'
-      'issues req';
+      'attention ai';
     grid-auto-rows: clamp(280px, 30vh, 520px);
     overflow-y: auto;
   }
@@ -177,9 +178,9 @@ html[data-display='1'] .cg-overview {
   gap: var(--gap);
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
-    'hero hero hero hero hero hero hero hero cams cams cams cams'
-    'appr appr appr appr ppl ppl ppl ppl cams cams cams cams'
-    'runs runs runs runs subs subs subs subs ai ai ai ai';
+    'hero hero hero hero hero hero hero hero hero cams cams cams'
+    'appr appr appr ppl ppl ppl map map map cams cams cams'
+    'runs runs runs subs subs subs map map map ai ai ai';
   grid-template-rows: minmax(240px, auto) minmax(280px, auto) minmax(260px, auto);
   height: 100%;
   min-height: 0;
@@ -193,9 +194,9 @@ html[data-display='1'] .cg-station {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    'hero hero hero hero hero hero hero hero cams cams cams cams'
-    'appr appr appr ppl ppl ppl runs runs runs cams cams cams'
-    'appr appr appr subs subs subs runs runs runs ai ai ai';
+    'hero hero hero hero hero hero hero hero hero cams cams cams'
+    'appr appr appr ppl ppl ppl map map map cams cams cams'
+    'runs runs runs subs subs subs map map map ai ai ai';
   overflow: hidden;
   padding-right: 0;
 }
@@ -205,6 +206,7 @@ html[data-display='1'] .cg-station {
 .cg-sarea-ppl { grid-area: ppl; min-height: 0; min-width: 0; }
 .cg-sarea-subs { grid-area: subs; min-height: 0; min-width: 0; }
 .cg-sarea-runs { grid-area: runs; min-height: 0; min-width: 0; }
+.cg-sarea-map { grid-area: map; min-height: 0; min-width: 0; }
 .cg-sarea-cams { grid-area: cams; min-height: 0; min-width: 0; }
 .cg-sarea-ai { grid-area: ai; min-height: 0; min-width: 0; }
 
@@ -213,12 +215,12 @@ html[data-display='1'] .cg-station {
   html[data-display='1'] .cg-station {
     grid-template-columns: 1fr;
     grid-template-rows: none;
-    grid-template-areas: 'hero' 'appr' 'ppl' 'subs' 'runs' 'cams' 'ai';
-    grid-auto-rows: clamp(240px, 40vh, 420px);
+    grid-template-areas: 'hero' 'appr' 'ppl' 'subs' 'runs' 'map' 'cams' 'ai';
+    grid-auto-rows: auto;
     overflow-y: auto;
     padding-right: 2px;
   }
-  .cg-sarea-hero { height: clamp(220px, 32vh, 360px); }
+  .cg-sarea-hero { min-height: clamp(220px, 32vh, 360px); }
 }
 
 @media (min-width: 700px) {
@@ -229,6 +231,7 @@ html[data-display='1'] .cg-station {
       'hero hero'
       'appr ppl'
       'subs runs'
+      'map map'
       'cams cams'
       'ai ai';
     grid-auto-rows: clamp(260px, 28vh, 480px);

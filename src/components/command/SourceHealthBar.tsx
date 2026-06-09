@@ -26,10 +26,11 @@ export function SourceHealthBar({ snapshot, servedFrom, ageSeconds, aiAvailable,
       <span className="flex items-center gap-1.5 text-mute" title="Camera feeds live / degraded / offline">
         <Camera size={13} className="text-faint" />
         <span className="tnum text-ready">{camSummary.live}</span>
-        <span className="text-faint">/</span>
+        <span className="text-faint">live</span>
         <span className="tnum text-attention">{camSummary.degraded}</span>
-        <span className="text-faint">/</span>
+        <span className="text-faint">degraded</span>
         <span className="tnum text-critical">{camSummary.offline}</span>
+        <span className="text-faint">offline</span>
       </span>
 
       <div className="ml-auto flex items-center gap-4 text-faint">

@@ -47,7 +47,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   // Edge cache hit (only 200s are ever cached at the edge).
   const cache = edgeCache();
   const edge = await cache.match(request);
-  if (edge) return edge;
+  if (edge) return cacheInternals.clientEdgeHitResponse(edge);
 
   const ttlSeconds = ttl(env);
 
@@ -56,12 +56,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // 200: fresh brief — cache it.
     if (hub.status === 200 && hub.ok && hub.body != null) {
-      const res = cacheInternals.originResponse(hub.body, ttlSeconds);
       const data = hub.body;
+      const res = cacheInternals.originResponse(data);
       context.waitUntil(
         Promise.all([
           cacheInternals.writeSnapshot(env, KV_KEY, data, ttlSeconds),
-          cache.put(request, res.clone()),
+          cache.put(request, cacheInternals.edgeOriginResponse(data, ttlSeconds)),
         ]),
       );
       return res;

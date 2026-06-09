@@ -60,9 +60,28 @@ export function StationHero({ detail, stationNumber, className }: Props) {
               ))}
             </ul>
           )}
+
+          {detail?.counts && (
+            <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-3 text-sm sm:grid-cols-4">
+              <HeroCount label="Apparatus checks" value={detail.counts.inspections_today} />
+              <HeroCount label="Station insp. 30d" value={detail.counts.station_inspections_30d} />
+              <HeroCount label="Open defects" value={detail.counts.open_defects} tone={detail.counts.open_defects > 0 ? 'attention' : 'ready'} />
+              <HeroCount label="Equip. requests" value={detail.counts.equipment_requests + detail.counts.supply_requests + detail.counts.big_ticket} tone={detail.counts.equipment_requests + detail.counts.supply_requests + detail.counts.big_ticket > 0 ? 'attention' : 'ready'} />
+            </div>
+          )}
         </div>
       </StationImage>
     </section>
+  );
+}
+
+function HeroCount({ label, value, tone = 'mute' }: { label: string; value: number; tone?: 'ready' | 'attention' | 'mute' }) {
+  const toneClass = tone === 'ready' ? 'text-ready' : tone === 'attention' ? 'text-attention' : 'text-ink';
+  return (
+    <div className="rounded-lg bg-black/35 px-3 py-2">
+      <div className={`tnum font-display text-xl font-extrabold leading-none ${toneClass}`}>{value}</div>
+      <div className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-mute">{label}</div>
+    </div>
   );
 }
 

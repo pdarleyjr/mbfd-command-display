@@ -17,6 +17,7 @@ export function StationAiSummary({ ai, stationNumber, stationName, ageSeconds, c
     const key = s.station.toLowerCase();
     return key.includes(`station ${stationNumber}`) || key.includes(`#${stationNumber}`) || key === stationNumber || (stationName ? key.includes(stationName.toLowerCase()) : false);
   });
+  const summary = safeSummary(match?.summary);
 
   return (
     <GlassPanel
@@ -26,13 +27,13 @@ export function StationAiSummary({ ai, stationNumber, stationName, ageSeconds, c
       bodyClassName="min-h-0 overflow-hidden"
       right={
         <span className="flex items-center gap-2 text-[11px] text-faint">
-          <span className="rounded-full bg-info/15 px-2 py-0.5 font-mono text-[10px] text-info">{ai?.model ?? 'qwen3.6:35b'}</span>
+          <span className="rounded-full bg-info/15 px-2 py-0.5 font-mono text-[10px] text-info">{ai?.model ?? 'grounded'}</span>
           {ai && <span>{formatAge(ageSeconds)} ago</span>}
         </span>
       }
     >
-      {match ? (
-        <p className="cg-scroll-y h-full min-h-0 text-[14px] leading-relaxed text-ink/95">{match.summary}</p>
+      {summary ? (
+        <p className="cg-scroll-y h-full min-h-0 text-[14px] leading-relaxed text-ink/95">{summary}</p>
       ) : ai ? (
         <p className="text-sm text-faint">No station-specific note in the current briefing.</p>
       ) : (
@@ -40,4 +41,11 @@ export function StationAiSummary({ ai, stationNumber, stationName, ageSeconds, c
       )}
     </GlassPanel>
   );
+}
+
+function safeSummary(text: string | undefined): string {
+  const clean = text?.trim() ?? '';
+  if (!clean) return '';
+  if (/\b(should|recommend|recommendation|advise|must)\b/i.test(clean)) return '';
+  return clean.slice(0, 700);
 }

@@ -9,7 +9,6 @@ interface OperationsMapProps {
   incidents: IncidentRecord[];
   selectedStationNumber: string | null;
   onSelectStation: (stationNumber: string) => void;
-  quality?: 'high' | 'low' | 'off';
   reducedMotion?: boolean;
   className?: string;
 }

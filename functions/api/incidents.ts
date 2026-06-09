@@ -28,7 +28,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   // 1) Edge cache hit.
   const cache = edgeCache();
   const edge = await cache.match(request);
-  if (edge) return edge;
+  if (edge) return cacheInternals.clientEdgeHitResponse(edge);
 
   // 2) Live origin (primary path, then fallback on 404).
   try {
@@ -37,12 +37,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       hub = await fetchHub(env, FALLBACK_PATH, { timeoutMs: 6000 });
     }
     if (hub.ok && hub.body != null) {
-      const res = cacheInternals.originResponse(hub.body, TTL_SECONDS);
       const data = hub.body;
+      const res = cacheInternals.originResponse(data);
       context.waitUntil(
         Promise.all([
           cacheInternals.writeSnapshot(env, KV_KEY, data, TTL_SECONDS),
-          cache.put(request, res.clone()),
+          cache.put(request, cacheInternals.edgeOriginResponse(data, TTL_SECONDS)),
         ]),
       );
       return res;

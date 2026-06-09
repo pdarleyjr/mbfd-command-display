@@ -13,6 +13,10 @@ export interface PersistentQueryOptions {
   enabled?: boolean;
   /** Treat these HTTP statuses as success (e.g. 202 generating, 504 last-good). */
   okStatuses?: number[];
+  /** Disable localStorage persistence for sensitive routes such as personnel. */
+  persist?: boolean;
+  /** Per-route browser last-good TTL. */
+  persistMaxAgeMs?: number;
 }
 
 export interface PersistentQueryResult<T> {
@@ -31,7 +35,8 @@ export interface PersistentQueryResult<T> {
  * fetch. Surfaces where the data came from so the UI can show a "cached" badge.
  */
 export function usePersistentQuery<T>(opts: PersistentQueryOptions): PersistentQueryResult<T> {
-  const persisted = loadPersisted<T>(opts.key);
+  const persist = opts.persist !== false;
+  const persisted = persist ? loadPersisted<T>(opts.key, opts.persistMaxAgeMs) : null;
 
   const query = useQuery<ApiResult<T>>({
     queryKey: ['display', opts.key],
@@ -42,16 +47,16 @@ export function usePersistentQuery<T>(opts: PersistentQueryOptions): PersistentQ
       ? { data: persisted.data, servedFrom: 'unknown', snapshotAgeSeconds: persisted.ageSeconds, status: 200 }
       : undefined,
     initialDataUpdatedAt: persisted ? Date.now() - persisted.ageSeconds * 1000 : undefined,
-    queryFn: ({ signal }) => getJson<T>(opts.path, { signal }),
+    queryFn: ({ signal }) => getJson<T>(opts.path, { signal, okStatuses: opts.okStatuses }),
   });
 
   // Persist the freshest origin/edge payload for next cold start.
   useEffect(() => {
     const result = query.data;
-    if (result && query.isSuccess && result.data != null) {
+    if (persist && result && query.isSuccess && result.data != null) {
       savePersisted(opts.key, result.data);
     }
-  }, [query.data, query.isSuccess, opts.key]);
+  }, [query.data, query.isSuccess, opts.key, persist]);
 
   const result = query.data;
   let servedFrom: PersistentQueryResult<T>['servedFrom'] = result?.servedFrom ?? 'unknown';

@@ -18,12 +18,17 @@ import '@/styles/command-glass.css';
 import '@/styles/layout.css';
 
 import { App } from '@/app/App';
+import { cleanupLegacyServiceWorkers, runCacheBustIfRequested } from '@/lib/serviceWorkerCleanup';
 
 const rootEl = document.getElementById('root');
 if (!rootEl) throw new Error('Root element #root not found');
 
-createRoot(rootEl).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+void cleanupLegacyServiceWorkers();
+void runCacheBustIfRequested().then((handled) => {
+  if (handled) return;
+  createRoot(rootEl).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

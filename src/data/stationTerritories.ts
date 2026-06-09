@@ -93,6 +93,13 @@ export function territoryByNumber(num: string | number): StationTerritory | unde
   return STATION_TERRITORIES.find((t) => t.number === key);
 }
 
+export function stationIdForNumber(num: string | number): number | null {
+  const key = String(num);
+  if (!STATION_TERRITORIES.some((t) => t.number === key)) return null;
+  const id = Number(key);
+  return Number.isFinite(id) ? id : null;
+}
+
 /** Project a lat/lng into a 0..1 map space (x = east-west, y = south-north flipped for screen). */
 export function projectToMap(lat: number, lng: number): { x: number; y: number } {
   const { south, north, east, west } = MIAMI_BEACH_BOUNDS;

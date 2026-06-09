@@ -113,7 +113,7 @@ export function CameraTile({ camera, className, allowRefresh }: CameraTileProps)
           playsInline
           autoPlay
           poster={resolved.poster ?? undefined}
-          className="absolute inset-0 h-full w-full bg-black object-cover"
+          className="absolute inset-0 h-full w-full bg-[color:var(--c-surface-2)] object-cover"
         />
       )}
       {stage === 'iframe' && resolved.iframeFallback && (

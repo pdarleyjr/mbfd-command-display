@@ -38,6 +38,7 @@ export function youtubeEmbed(id: string): string {
 }
 
 export function resolveCamera(cam: StationCamera): ResolvedCamera {
+  const useEdgeResolvers = !import.meta.env.DEV || import.meta.env.VITE_USE_CAMERA_RESOLVERS === '1';
   switch (cam.sourceType) {
     case 'youtube':
       return {
@@ -48,6 +49,14 @@ export function resolveCamera(cam: StationCamera): ResolvedCamera {
       };
 
     case 'iframe': // Ozolio
+      if (!useEdgeResolvers) {
+        return {
+          kind: cam.wrapperUrl ? 'iframe' : 'image',
+          src: cam.wrapperUrl ?? cam.posterUrl,
+          iframeFallback: null,
+          poster: cam.posterUrl,
+        };
+      }
       return {
         kind: 'hls',
         src: cam.oid ? `${API_BASE}/api/cameras/ozolio?oid=${encodeURIComponent(cam.oid)}` : null,
@@ -56,6 +65,14 @@ export function resolveCamera(cam: StationCamera): ResolvedCamera {
       };
 
     case 'hls': // news
+      if (!useEdgeResolvers && cam.wrapperUrl) {
+        return {
+          kind: 'iframe',
+          src: cam.wrapperUrl,
+          iframeFallback: null,
+          poster: cam.posterUrl,
+        };
+      }
       return {
         kind: 'hls',
         src: cam.directHls ?? (cam.newsKey ? `${API_BASE}/api/cameras/news?key=${encodeURIComponent(cam.newsKey)}` : null),

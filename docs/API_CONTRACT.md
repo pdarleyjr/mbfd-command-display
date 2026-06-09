@@ -28,8 +28,9 @@ Response headers: `X-Display-Served-From: origin | snapshot | empty` and
 
 `functions/_shared/cache.ts`: try edge cache → fetch hub (6s timeout) → on success cache to
 `caches.default` + KV `SNAPSHOTS`; on hub failure serve KV last-good; if no KV, serve a safe
-empty JSON. The browser also keeps a localStorage last-good
-([`usePersistentQuery`](../src/hooks/usePersistentQuery.ts)).
+empty JSON. The browser also keeps sensitivity-aware local last-good data
+([`usePersistentQuery`](../src/hooks/usePersistentQuery.ts)); personnel is never persisted in
+browser storage.
 
 ## Auth (defense in depth)
 

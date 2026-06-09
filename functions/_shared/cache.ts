@@ -65,12 +65,30 @@ function baseHeaders(extra?: Record<string, string>): Headers {
   return headers;
 }
 
-function originResponse(data: unknown, ttlSeconds: number): Response {
+function edgeOriginResponse(data: unknown, ttlSeconds: number): Response {
   const headers = baseHeaders({
     'cache-control': `public, max-age=${ttlSeconds}, s-maxage=${ttlSeconds}`,
   });
   headers.set(HEADER_SERVED_FROM, 'origin');
   return new Response(jsonBody(data), { status: 200, headers });
+}
+
+function clientOriginResponse(data: unknown): Response {
+  const headers = baseHeaders({
+    'cache-control': 'private, max-age=0, must-revalidate',
+  });
+  headers.set(HEADER_SERVED_FROM, 'origin');
+  return new Response(jsonBody(data), { status: 200, headers });
+}
+
+async function clientEdgeHitResponse(edge: Response): Promise<Response> {
+  const headers = baseHeaders({
+    'cache-control': 'private, max-age=0, must-revalidate',
+  });
+  headers.set(HEADER_SERVED_FROM, edge.headers.get(HEADER_SERVED_FROM) ?? 'origin');
+  const age = edge.headers.get(HEADER_SNAPSHOT_AGE);
+  if (age != null) headers.set(HEADER_SNAPSHOT_AGE, age);
+  return new Response(await edge.text(), { status: edge.status, statusText: edge.statusText, headers });
 }
 
 function snapshotResponse(envelope: SnapshotEnvelope): Response {
@@ -122,21 +140,20 @@ export async function cachedPassthrough(
   // 1) Edge cache hit.
   const cache = edgeCache();
   const edge = await cache.match(request);
-  if (edge) return edge;
+  if (edge) return clientEdgeHitResponse(edge);
 
   // 2) Live origin.
   try {
     const hub = await fetchHub(env, hubPath, { timeoutMs });
     if (hub.ok && hub.body != null) {
-      const res = originResponse(hub.body, ttlSeconds);
       const data = hub.body;
       waitUntil(
         Promise.all([
           writeSnapshot(env, kvKey, data, ttlSeconds),
-          cache.put(request, res.clone()),
+          cache.put(request, edgeOriginResponse(data, ttlSeconds)),
         ]),
       );
-      return res;
+      return clientOriginResponse(data);
     }
     // Non-2xx or non-JSON: fall through to snapshot.
   } catch {
@@ -155,7 +172,9 @@ export async function cachedPassthrough(
 export const cacheInternals = {
   readSnapshot,
   writeSnapshot,
-  originResponse,
+  originResponse: clientOriginResponse,
+  edgeOriginResponse,
+  clientEdgeHitResponse,
   snapshotResponse,
   emptyResponse,
 };

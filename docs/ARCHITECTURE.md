@@ -10,7 +10,7 @@ Cloudflare Functions edge gateway in front of the MBFDHub read-only API. It is e
 ┌───────────────────────────┐
 │  Browser SPA (React 19)   │  command.mbfdhub.com
 │  - TanStack Query polling  │
-│  - usePersistentQuery      │  localStorage last-good (12h)
+│  - usePersistentQuery      │  sensitivity-aware local last-good
 └────────────┬──────────────┘
              │ GET /api/*  (same-origin; Access cookie attached)
              ▼
@@ -33,7 +33,8 @@ Cloudflare Functions edge gateway in front of the MBFDHub read-only API. It is e
 
 - Entry: [`src/main.tsx`](../src/main.tsx) → [`src/app/App.tsx`](../src/app/App.tsx).
 - Routing (React Router 6): `/` → [`CommandOverview`](../src/app/routes/CommandOverview.tsx),
-  `/station/:number` → [`StationView`](../src/app/routes/StationView.tsx), `*` redirects to `/`.
+  `/stations/:number` → [`StationView`](../src/app/routes/StationView.tsx), legacy
+  `/station/:number` redirects to the canonical plural route, and `*` redirects to `/`.
 - Server state lives in TanStack Query; UI preferences live in Zustand
   ([`uiStore`](../src/store/uiStore.ts) persisted to `localStorage` under `mbfd-command-ui`).
   Camera playback health lives in a separate tiny store
@@ -55,9 +56,10 @@ each with a poll interval matched to the data's volatility:
 | `useIncidents` | `/api/incidents` | 30s |
 | `useAiSnapshot` | `/api/ai-snapshot` | 60s (treats 202 + 504 as success) |
 
-All hooks ride on [`usePersistentQuery`](../src/hooks/usePersistentQuery.ts), which hydrates
-each query's `initialData` from a localStorage last-good envelope so a panel paints real data
-immediately on a cold start, then re-persists every fresh origin/edge payload.
+Most hooks ride on [`usePersistentQuery`](../src/hooks/usePersistentQuery.ts), which can hydrate
+`initialData` from a localStorage last-good envelope so a panel paints real data immediately on a
+cold start, then re-persists every fresh origin/edge payload. Sensitive hooks can opt out;
+personnel is not persisted in the browser.
 
 ## The edge gateway (`functions/`)
 
@@ -109,9 +111,10 @@ KV last-good is written with a TTL of `max(ttl * 12, 3600)` seconds so it surviv
 outage well past the serve TTL.
 
 On top of the edge, the browser's [`usePersistentQuery`](../src/hooks/usePersistentQuery.ts) +
-[`persistentCache`](../src/lib/persistentCache.ts) keep a localStorage last-good (12h max age)
-so even a hard refresh while the edge is unreachable still paints the previous good data, then
-the SPA labels it `persisted`. The [`apiClient`](../src/lib/apiClient.ts) reads the
+[`persistentCache`](../src/lib/persistentCache.ts) keep sensitivity-aware local last-good data
+(shorter TTLs for incidents/submissions, no personnel persistence) so even a hard refresh during
+a brief outage can paint safe previous data, then the SPA labels it `persisted`. The
+[`apiClient`](../src/lib/apiClient.ts) reads the
 `X-Display-Served-From` / `X-Display-Snapshot-Age` headers and surfaces provenance to the UI,
 which renders a freshness badge instead of ever showing a spinner-only screen.
 
@@ -132,33 +135,23 @@ Most routes use the plain passthrough. Two are status-aware:
 The same DOM reflows from a laptop to a 12372x2160 video wall.
 [`src/lib/layoutRegime.ts`](../src/lib/layoutRegime.ts) classifies the viewport into
 `compact | desktop | wide | ultrawide | wall | portrait` and applies a `--type-scale`
-custom property (0.92 → 1.9) plus `data-regime` / `data-display` attributes on `<html>`. Wide,
-ultrawide, and wall regimes are **no-scroll** display modes (`isNoScrollRegime`), so the wall is
-glance-first and never requires scrolling. Operators can also force display mode via
+custom property (0.92 → 1.8) plus `data-regime` / `data-display` attributes on `<html>`. Ultrawide
+and wall regimes are **no-scroll** display modes (`isNoScrollRegime`), so the wall is glance-first
+and never requires scrolling. Standard wide desktops stay in desktop-first FLOW unless operators
+force display mode via
 [`uiStore`](../src/store/uiStore.ts).
 
-## Spatial Operations Map (WebGL) with graceful fallback
+## Spatial Operations Map (2D, no WebGL)
 
-The overview hosts a 3D relational map of Miami Beach built with React Three Fiber. The scene
-([`SpatialCommandScene`](../src/components/three/SpatialCommandScene.tsx)) composes terrain,
-territory bands, station nodes, incident pings, a marine layer, a sparse relational network, a
-restrained bloom, and a very slow auto-orbit. It is purely spatial — all operational text lives
-in HTML overlays, never baked into the canvas.
+The overview and station detail use a hand-authored SVG schematic of Miami Beach in
+[`OperationsMap2D`](../src/components/command/OperationsMap2D.tsx). It shows the barrier-island
+shape, bay/ocean context, causeways, territory bands, station controls, and active incident pins
+without external map tiles or GPU dependencies. Interactive station pins are native HTML buttons
+over the SVG, so keyboard and assistive-technology behavior remains predictable.
 
-Capability detection lives in [`src/lib/webgl.ts`](../src/lib/webgl.ts) and is surfaced through
-[`useEnvironment`](../src/hooks/useEnvironment.ts):
-
-- `detectWebGL()` probes a real WebGL2 (then WebGL1) context once.
-- `recommendedQuality()` heuristically returns `high` or `low` from `hardwareConcurrency` and
-  `deviceMemory` (a kiosk/tablet degrades to `low`).
-- `prefersReducedMotion()` honors the OS setting; the [`uiStore`](../src/store/uiStore.ts) adds
-  a manual motion/quality override (`auto | on | off` / `high | low | off`).
-
-Postprocessing and auto-orbit run only on `high` quality with motion enabled. Under reduced
-motion the orbit and shimmer stop. The ambient backdrop
-([`CommandShell`](../src/components/command/CommandShell.tsx)) is lazy-loaded and wrapped in an
-`ErrorBoundary` with a `null` fallback, so it never blocks first paint or the data, and a WebGL
-failure degrades to a 2D / static presentation rather than a black canvas.
+No service worker or WebGL app shell is shipped. New deploys rely on Cloudflare Pages' hashed
+assets, `_headers` cache policy, and a best-effort legacy service-worker cleanup path in
+[`serviceWorkerCleanup`](../src/lib/serviceWorkerCleanup.ts).
 
 ## Design system
 

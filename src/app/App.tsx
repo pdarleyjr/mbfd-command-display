@@ -6,13 +6,19 @@ import { StationView } from './routes/StationView';
 export function App() {
   return (
     <QueryProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<CommandOverview />} />
-          <Route path="/station/:number" element={<StationView />} />
+          <Route path="/stations/:number" element={<StationView />} />
+          <Route path="/station/:number" element={<LegacyStationRedirect />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryProvider>
   );
+}
+
+function LegacyStationRedirect() {
+  const number = window.location.pathname.split('/').filter(Boolean).pop();
+  return <Navigate to={number ? `/stations/${number}` : '/'} replace />;
 }

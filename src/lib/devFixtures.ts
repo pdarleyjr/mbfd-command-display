@@ -170,7 +170,11 @@ function submissionsFor(id: number) {
 export function mockFor(path: string): ApiResult<unknown> | null {
   if (path === '/api/snapshot') return ok(OVERVIEW);
   if (path === '/api/incidents') return ok(INCIDENTS);
-  if (path === '/api/ai-snapshot') return ok(AI);
+  if (path === '/api/ai-snapshot') {
+    const testMode = typeof localStorage !== 'undefined' ? localStorage.getItem('mbfd-test-ai') : null;
+    if (testMode === 'empty') return ok({ ...AI, briefing: '', station_summaries: [], data_gaps: ['AI narrative withheld for test'], confidence: 0, status: 'unavailable' });
+    return ok(AI);
+  }
   if (path === '/api/stations') return ok({ stations: STATIONS });
 
   const detail = path.match(/^\/api\/stations\/(\d+)$/);

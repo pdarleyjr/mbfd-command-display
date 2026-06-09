@@ -3,6 +3,7 @@ import { GlassPanel } from '@/components/common/GlassPanel';
 import { Camera } from '@/components/common/icons';
 import { CameraTile } from './CameraTile';
 import { overviewCameras, type StationCamera } from '@/data/stationCameraCatalog';
+import { summarizeCameraHealth, useCameraHealthStore } from '@/store/cameraHealthStore';
 
 interface Props {
   cameras?: StationCamera[];
@@ -22,6 +23,9 @@ export function LiveCameraNetwork({
   title = 'Live Cameras',
 }: Props) {
   const list = cameras ?? overviewCameras(4);
+  const camStates = useCameraHealthStore((s) => s.states);
+  const health = summarizeCameraHealth(camStates);
+  const confirmed = health.live + health.degraded + health.offline;
   return (
     <GlassPanel
       label={title}
@@ -31,7 +35,7 @@ export function LiveCameraNetwork({
       right={
         <span className="cg-live">
           <span className="cg-live__dot" />
-          {list.length} live
+          {confirmed > 0 ? `${health.live} live` : `${list.length} sources`}
         </span>
       }
     >

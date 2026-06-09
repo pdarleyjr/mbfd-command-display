@@ -37,7 +37,7 @@ WebP/PNG sources over the LQIP + dominant color, with a readable dark scrim (and
 `backdrop` blur/desaturate when used behind text).
 
 Image usage:
-- Station cards (square), station detail hero (hero), blurred backdrops, WebGL station plane
+- Station cards/thumbnails (square), station detail hero (hero), and dimmed station backdrops
   textures (optional), and camera fallback posters.
 - `admin.png` backs the overview hero / loading skeleton background.
 

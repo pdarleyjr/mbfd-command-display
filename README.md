@@ -19,8 +19,8 @@ it makes upstream is a GET against the hub's additive, redacted `/api/display/*`
 | Layer | Tech |
 |-------|------|
 | Frontend | Vite 6 · React 19 · TypeScript · Tailwind 3 · TanStack Query · Zustand · React Router 6 |
-| 3D / motion | Three.js · @react-three/fiber 9 · drei 10 · postprocessing 3 · framer-motion |
-| Video | hls.js (Ozolio + news HLS), YouTube-nocookie embeds |
+| Motion | CSS transitions/animations with reduced-motion support |
+| Video | lazy-loaded hls.js (Ozolio + news HLS), YouTube-nocookie embeds |
 | Edge | Cloudflare Pages · Functions (`functions/`) · KV (last-good snapshots) |
 | Access | Cloudflare Access (staff-only, `@miamibeachfl.gov`, team `darl.cloudflareaccess.com`) |
 
@@ -80,7 +80,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 ```
 mbfd-command-display/
 ├── index.html                 # SPA shell (noindex, dark, theme #0B1220)
-├── vite.config.ts             # Vite 6 + PWA + dev /api proxy + manual chunks
+├── vite.config.ts             # Vite 6 + dev /api proxy + manual chunks
 ├── wrangler.toml              # Pages + Functions config; SNAPSHOTS KV binding; [vars]
 ├── tailwind.config.js         # "Command Glass" design system (mirrors tokens.css)
 ├── .env.example               # frontend vars + names of edge secrets (no values)
@@ -109,7 +109,7 @@ mbfd-command-display/
 
 | Doc | What it covers |
 |-----|----------------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data flow, edge gateway, degrade-never-blank, responsive regimes, WebGL scene |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data flow, edge gateway, degrade-never-blank, responsive regimes, 2D map |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Cloudflare Pages build/deploy, KV, secrets, custom domain, hub-side deploy |
 | [docs/SECURITY.md](docs/SECURITY.md) | Access, GET-only boundary, redaction, the hard `/admin` boundary, threat model |
 | [docs/CAMERA_SOURCES.md](docs/CAMERA_SOURCES.md) | Per-station camera mapping, resolvers, fallback ladder, honest gaps |

@@ -23,7 +23,8 @@ interface Props {
  */
 export function AiOperationalBrief({ ai, status, ageSeconds, snapshot, className, showStationSummaries = true }: Props) {
   const effectiveStatus = status ?? ai?.status ?? (ai ? 'fresh' : 'generating');
-  const hasProse = !!ai?.briefing && ai.briefing.trim().length > 0;
+  const briefing = safeBriefing(ai);
+  const hasProse = briefing.length > 0;
   const confidencePct = ai ? Math.round((ai.confidence ?? 0) * 100) : 0;
   const showConfidence = hasProse && confidencePct > 0;
   const grounded = groundedSummary(snapshot);
@@ -37,7 +38,7 @@ export function AiOperationalBrief({ ai, status, ageSeconds, snapshot, className
       bodyClassName="min-h-0 overflow-hidden"
       right={
         <span className="flex items-center gap-2 text-[11px] text-faint">
-          <span className="rounded-full bg-info/15 px-2 py-0.5 font-mono text-[10px] text-info">{ai?.model ?? 'qwen3.6:35b'}</span>
+          <span className="rounded-full bg-info/15 px-2 py-0.5 font-mono text-[10px] text-info">{ai?.model ?? 'grounded'}</span>
           {hasProse && <span>updated {formatAge(ageSeconds)} ago</span>}
         </span>
       }
@@ -45,13 +46,13 @@ export function AiOperationalBrief({ ai, status, ageSeconds, snapshot, className
       <div className="cg-scroll-y flex h-full min-h-0 flex-col gap-2.5">
         {/* Model prose when present, else the grounded summary as the lead. */}
         {hasProse ? (
-          <p className="text-[15px] leading-relaxed text-ink/95">{ai!.briefing}</p>
+          <p className="text-[15px] leading-relaxed text-ink/95">{briefing}</p>
         ) : grounded ? (
           <div className="flex flex-col gap-1.5">
             <p className="text-[15px] leading-relaxed text-ink/95">{grounded}</p>
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-info/12 px-2 py-0.5 text-[11px] text-info">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-info" />
-              {effectiveStatus === 'unavailable' ? 'Live counts — AI narrative offline' : 'Live counts — AI narrative updating'}
+              {effectiveStatus === 'unavailable' ? 'Grounded counts — AI narrative offline' : 'Grounded counts — AI narrative updating'}
             </span>
           </div>
         ) : (
@@ -95,6 +96,14 @@ export function AiOperationalBrief({ ai, status, ageSeconds, snapshot, className
       </div>
     </GlassPanel>
   );
+}
+
+function safeBriefing(ai: AiSnapshot | undefined): string {
+  const text = ai?.briefing?.trim() ?? '';
+  if (!text) return '';
+  if (ai?.mode && ai.mode !== 'descriptive') return '';
+  if (/\b(should|recommend|recommendation|advise|must)\b/i.test(text)) return '';
+  return text.slice(0, 900);
 }
 
 /** Deterministic, grounded one-liner from the snapshot — guarantees real insight, no LLM. */

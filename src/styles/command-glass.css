@@ -59,8 +59,8 @@
 }
 
 /* Module height floors so a panel can never crush its content under its header. */
-.cg-area-issues,
-.cg-area-req,
+.cg-area-status,
+.cg-area-attention,
 .cg-area-ai,
 .cg-area-runs,
 .cg-area-cams {
@@ -70,8 +70,8 @@
   min-block-size: 300px;
 }
 /* In the no-scroll wall, areas fill their tracks — drop the floors so nothing overflows. */
-html[data-display='1'] .cg-area-issues,
-html[data-display='1'] .cg-area-req,
+html[data-display='1'] .cg-area-status,
+html[data-display='1'] .cg-area-attention,
 html[data-display='1'] .cg-area-ai,
 html[data-display='1'] .cg-area-runs,
 html[data-display='1'] .cg-area-cams,

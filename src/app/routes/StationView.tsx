@@ -1,7 +1,8 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CommandShell } from '@/components/command/CommandShell';
 import { CommandStrip } from '@/components/command/CommandStrip';
 import { SourceHealthBar } from '@/components/command/SourceHealthBar';
+import { OperationsMap } from '@/components/command/OperationsMap';
 import { StationHero } from '@/components/station/StationHero';
 import { StationApparatusPanel } from '@/components/station/StationApparatusPanel';
 import { StationPersonnelPanel } from '@/components/station/StationPersonnelPanel';
@@ -12,7 +13,8 @@ import { StationAiSummary } from '@/components/station/StationAiSummary';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { ChevronLeft } from '@/components/common/icons';
 import { useDisplaySnapshot, useStationDetail, useIncidents, useAiSnapshot } from '@/hooks/useDisplayData';
-import { territoryByNumber } from '@/data/stationTerritories';
+import { stationIdForNumber, territoryByNumber } from '@/data/stationTerritories';
+import { useReducedMotion } from '@/hooks/useEnvironment';
 import type { DisplayStationDetail } from '@/types/display';
 
 /** Station Command View — independent per-station readiness, apparatus, personnel, cameras, runs, AI. */
@@ -22,10 +24,11 @@ export function StationView() {
   const snap = useDisplaySnapshot();
   const inc = useIncidents();
   const ai = useAiSnapshot();
+  const reducedMotion = useReducedMotion();
 
   const territory = territoryByNumber(number);
   const summary = snap.data?.stations?.find((s) => s.number === number);
-  const stationId = summary?.id ?? null;
+  const stationId = summary?.id ?? stationIdForNumber(number);
   const detailRes = useStationDetail(stationId);
   const detail = detailRes.data ?? (summary ? summaryToDetail(summary) : undefined);
   const stationNum = Number(number);
@@ -36,10 +39,19 @@ export function StationView() {
       onClick={() => navigate('/')}
       className="inline-flex items-center gap-1 rounded-md border border-[color:var(--c-hairline)] px-2.5 py-1.5 text-[12px] font-semibold text-mute transition-colors hover:text-ink"
       title="Back to overview"
+      aria-label="Back to Overview"
     >
-      <ChevronLeft size={16} /> Overview
+      <ChevronLeft size={16} /> Back to Overview
     </button>
   );
+
+  const breadcrumb = territory ? (
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-faint">
+      <Link to="/" className="text-mute hover:text-ink">Overview</Link>
+      <span aria-hidden="true">/</span>
+      <span className="text-ink">Station {territory.number}</span>
+    </nav>
+  ) : undefined;
 
   if (!territory) {
     return (
@@ -61,6 +73,8 @@ export function StationView() {
     <CommandShell>
       <CommandStrip
         leading={back}
+        breadcrumb={breadcrumb}
+        selectedStationNumber={number}
         title={territory.name}
         subtitle={territory.territoryLabel}
         snapshot={snap.data}
@@ -88,6 +102,16 @@ export function StationView() {
               servedFrom={inc.servedFrom}
               ageSeconds={inc.ageSeconds}
               stationNumber={number}
+            />
+          </ErrorBoundary>
+          <ErrorBoundary label="Station map" className="cg-sarea-map">
+            <OperationsMap
+              className="h-full"
+              stations={snap.data?.stations ?? (summary ? [summary] : [])}
+              incidents={inc.data?.active ?? []}
+              selectedStationNumber={number}
+              onSelectStation={(stationNumber) => navigate(`/stations/${stationNumber}`)}
+              reducedMotion={reducedMotion}
             />
           </ErrorBoundary>
           <ErrorBoundary label="Cameras" className="cg-sarea-cams">

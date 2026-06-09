@@ -20,6 +20,7 @@ export function useDisplaySnapshot() {
     path: '/api/snapshot',
     refetchInterval: 30_000,
     staleTime: 20_000,
+    persistMaxAgeMs: 1000 * 60 * 60 * 6,
   });
   // Reconcile the hub's flat readiness_* fields into the nested app shape.
   return { ...r, data: r.data ? normalizeOverview(r.data) : undefined };
@@ -41,6 +42,7 @@ export function useStationDetail(stationId: number | null) {
     enabled: stationId != null,
     refetchInterval: 30_000,
     staleTime: 20_000,
+    persistMaxAgeMs: 1000 * 60 * 60 * 3,
   });
   return { ...r, data: r.data ? normalizeStationDetail(r.data) : undefined };
 }
@@ -52,6 +54,7 @@ export function useStationPersonnel(stationId: number | null) {
     enabled: stationId != null,
     refetchInterval: 300_000,
     staleTime: 240_000,
+    persist: false,
   });
 }
 
@@ -62,6 +65,7 @@ export function useStationSubmissions(stationId: number | null) {
     enabled: stationId != null,
     refetchInterval: 60_000,
     staleTime: 45_000,
+    persistMaxAgeMs: 1000 * 60 * 30,
   });
 }
 
@@ -71,6 +75,7 @@ export function useIncidents() {
     path: '/api/incidents',
     refetchInterval: 30_000,
     staleTime: 25_000,
+    persistMaxAgeMs: 1000 * 60 * 30,
   });
 }
 

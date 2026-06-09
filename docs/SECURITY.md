@@ -71,6 +71,10 @@ requests, and the server never sends, the redacted data.
   [`_shared/response.ts`](../functions/_shared/response.ts)): `X-Content-Type-Options: nosniff`,
   `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` (the gateway emits
   JSON, never an embeddable document).
+- **SPA headers** in [`public/_headers`](../public/_headers) set CSP, `frame-ancestors 'none'`,
+  Permissions-Policy, no-store for the app shell, and immutable caching only for hashed assets.
+- **Browser privacy**: edge cache/KV still provide last-good behavior, but JSON returned to the
+  browser is private/revalidated; personnel data is not written to localStorage.
 - **Input validation at the boundary.** Dynamic `:id` params are validated by
   [`positiveIntParam`](../functions/_shared/params.ts) (`^[0-9]{1,9}$`, positive integer) and
   rejected with 400 before any value is interpolated into a hub URL.

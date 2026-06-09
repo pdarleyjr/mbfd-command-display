@@ -25,7 +25,7 @@ export interface ApiResult<T> {
   status: number;
 }
 
-export async function getJson<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+export async function getJson<T>(path: string, init?: RequestInit & { okStatuses?: number[] }): Promise<ApiResult<T>> {
   // DEV-only mock path (dead-code-eliminated in production builds).
   if (import.meta.env.DEV && import.meta.env.VITE_MOCK === '1') {
     const { mockFor } = await import('./devFixtures');
@@ -65,7 +65,8 @@ export async function getJson<T>(path: string, init?: RequestInit): Promise<ApiR
     }
   }
 
-  if (!res.ok && res.status !== 202 && res.status !== 504) {
+  const okStatuses = init?.okStatuses ?? [];
+  if (!res.ok && !okStatuses.includes(res.status)) {
     throw new ApiError(res.status, `Request to ${path} failed (${res.status})`, parsed);
   }
 

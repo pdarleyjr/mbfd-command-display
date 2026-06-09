@@ -17,7 +17,7 @@ Source of truth: [`src/data/stationTerritories.ts`](../src/data/stationTerritori
 **only** to lay out the relational map. They are **not** survey-grade and are never presented
 as exact dispatch geometry. `MIAMI_BEACH_BOUNDS` frames the island; `projectToMap(lat, lng)`
 returns a normalized `{x, y}` in 0..1 (x = east-west, y = south-north flipped for screen) so
-the SVG fallback and the WebGL scene place nodes/bands without a real geographic projection.
+the 2D SVG schematic can place nodes/bands without a real geographic projection.
 
 When the hub returns real `latitude`/`longitude` for a station they are used; otherwise the
 map falls back to the territory `centroid`. (In the current production schema lat/long are

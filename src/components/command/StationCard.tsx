@@ -55,7 +55,13 @@ export function StationCard({ station, onSelect, className }: Props) {
         <div className="hidden shrink-0 flex-col items-end gap-0.5 text-[11px] text-mute sm:flex">
           <span className="inline-flex items-center gap-1">
             <Truck size={12} className="text-faint" />
-            <span className="tnum text-ink">{station.in_service}</span>/<span className="tnum">{station.apparatus_count}</span>
+            {station.apparatus_count > 0 ? (
+              <>
+                <span className="tnum text-ink">{station.in_service}</span>/<span className="tnum">{station.apparatus_count}</span>
+              </>
+            ) : (
+              <span className="text-faint">No units</span>
+            )}
           </span>
           <span className="inline-flex items-center gap-2">
             {station.out_of_service > 0 && <span className="tnum text-critical">{station.out_of_service} OOS</span>}

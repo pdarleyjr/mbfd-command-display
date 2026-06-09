@@ -1,12 +1,15 @@
 /**
- * Environment hooks: viewport layout regime, resolved motion/GPU preferences, and a
- * ticking clock for the command strip.
+ * Environment hooks: viewport layout regime, resolved motion preferences, and a ticking
+ * clock for the command strip.
  */
 
 import { useEffect, useState } from 'react';
 import { applyRegime, detectRegime, isNoScrollRegime, type LayoutRegime } from '@/lib/layoutRegime';
 import { useUiStore } from '@/store/uiStore';
-import { prefersReducedMotion as mqReducedMotion, recommendedQuality } from '@/lib/webgl';
+
+function systemPrefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
 
 /** Read-only viewport regime. Tracks resize/orientation; applies no side effects. */
 export function useViewportRegime(): LayoutRegime {
@@ -46,7 +49,7 @@ export function useLayoutRegime(): { regime: LayoutRegime; isDisplay: boolean } 
 
 export function useReducedMotion(): boolean {
   const pref = useUiStore((s) => s.motionPref);
-  const [systemReduced, setSystemReduced] = useState<boolean>(() => mqReducedMotion());
+  const [systemReduced, setSystemReduced] = useState<boolean>(() => systemPrefersReducedMotion());
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const handler = () => setSystemReduced(mq.matches);
@@ -56,12 +59,6 @@ export function useReducedMotion(): boolean {
   if (pref === 'off') return true;
   if (pref === 'on') return false;
   return systemReduced;
-}
-
-export function useResolvedQuality(): 'high' | 'low' | 'off' {
-  const pref = useUiStore((s) => s.qualityPref);
-  if (pref === 'high' || pref === 'low' || pref === 'off') return pref;
-  return recommendedQuality();
 }
 
 export function useClock(intervalMs = 1000): Date {
