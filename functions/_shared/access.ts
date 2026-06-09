@@ -6,7 +6,9 @@
  * `Cf-Access-Jwt-Assertion` header (RS256 JWT signed by the team's JWKS). This is
  * a belt-and-suspenders check inside the Function, dependency-free (Web Crypto).
  *
- * If the env vars are absent, verification is skipped (Access still guards the app).
+ * In local development the check is skipped when env vars are absent. On deployed hosts the
+ * gateway fails closed if CF_ACCESS_AUD / CF_ACCESS_TEAM are missing, so Pages deployment URLs
+ * cannot become a public data bypass.
  */
 
 import type { Env } from './env';
@@ -112,6 +114,9 @@ function audMatches(aud: string | string[] | undefined, expected: string): boole
  */
 export async function verifyAccess(request: Request, env: Env): Promise<AccessResult> {
   if (!env.CF_ACCESS_AUD || !env.CF_ACCESS_TEAM) {
+    const host = new URL(request.url).hostname;
+    const local = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+    if (!local) return { ok: false, reason: 'access_not_configured' };
     return { ok: true, skipped: true };
   }
 
