@@ -48,19 +48,11 @@ export function resolveCamera(cam: StationCamera): ResolvedCamera {
         poster: cam.posterUrl,
       };
 
-    case 'iframe': // Ozolio
-      if (!useEdgeResolvers) {
-        return {
-          kind: cam.wrapperUrl ? 'iframe' : 'image',
-          src: cam.wrapperUrl ?? cam.posterUrl,
-          iframeFallback: null,
-          poster: cam.posterUrl,
-        };
-      }
+    case 'iframe': // Ozolio / hosted wrapper. Prefer the wrapper to avoid browser-level HLS errors.
       return {
-        kind: 'hls',
-        src: cam.oid ? `${API_BASE}/api/cameras/ozolio?oid=${encodeURIComponent(cam.oid)}` : null,
-        iframeFallback: cam.wrapperUrl ?? null,
+        kind: cam.wrapperUrl ? 'iframe' : 'image',
+        src: cam.wrapperUrl ?? cam.posterUrl,
+        iframeFallback: null,
         poster: cam.posterUrl,
       };
 
